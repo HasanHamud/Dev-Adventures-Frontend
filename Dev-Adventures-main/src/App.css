@@ -1,0 +1,27 @@
+/* Customizing the background and text color of the country dropdown */
+.react-phone-input-2__dropdown {
+    background-color: #2d2d2d; /* Set a dark background color */
+    color: #9E9E9E; /* Set text color */
+  }
+  
+  /* Customizing the color of each country flag and name in the dropdown */
+  .react-phone-input-2__country {
+    color: #9E9E9E !important; /* Set the country text color */
+  }
+  
+  /* Customizing the hover effect on country items */
+  .react-phone-input-2__country:hover {
+    background-color: #4a4a4a; /* Set background color when hovering */
+    color: #ffffff; /* Change text color when hovering */
+  }
+  
+  /* Customizing the selected country (the one that's chosen) */
+  .react-phone-input-2__selected-flag {
+    color: #e8f0ff; /* Change the selected country flag's text color */
+  }
+  
+  /* Customizing the country flags (optional) */
+  .react-phone-input-2__flag {
+    filter: brightness(0) invert(1); /* Optional: Change flag color if necessary */
+  }
+  
