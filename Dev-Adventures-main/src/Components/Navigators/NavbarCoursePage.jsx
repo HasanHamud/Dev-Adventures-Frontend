@@ -1,7 +1,7 @@
-/* eslint-disable react/prop-types */
 import { useState } from "react";
 import { ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router";
+import meImage from "../../Assets/images/Me.jpg";
 
 const NavbarCoursePage = () => {
   const [isLoading, setIsLoading] = useState(null);
@@ -23,6 +23,14 @@ const NavbarCoursePage = () => {
     }, 1000);
   };
 
+  const handleProfileClick = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      navigate("/profile");
+    }, 1000);
+  };
+
   const handleCartButton = () => {
     setIsLoading(true);
     setTimeout(() => {
@@ -32,54 +40,51 @@ const NavbarCoursePage = () => {
   };
 
   return (
-    <nav className="bg-gray-900 border-b border-gray-700">
-      <div className="max-w-7xl mx-auto py-4 ">
-        <div className="flex items-center justify-between h-16">
-          {/* Left section: Logo */}
-          <div className="flex-shrink-0">
-            <button className="text-white hover:text-blue-500 transition-colors">
-              <span className="font-bold italic text-xl">DeV.</span>
-            </button>
-          </div>
-
-          {/* Middle section: Navigation */}
-          <div className="flex-1 flex items-center justify-center px-8">
-            <div className="flex space-x-4">
-              <button
-                onClick={handleHomeButton}
-                className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Home
-              </button>
-              <button
-                onClick={handlePlansButton}
-                className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Plans
-              </button>
-            </div>
-
-            {/* Middle Section - Search Bar */}
-            <div className="flex justify-center w-1/3">
-              <div className="flex bg-gray-600 rounded-full border border-gray-600 w-full max-w-xl">
-                <input
-                  placeholder="Browse our courses..."
-                  className="w-full bg-transparent px-6 py-1 rounded-full border-none focus:outline-none text-white"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Right section: Cart */}
-          <div className="flex items-center">
-            <button
-              onClick={handleCartButton}
-              className="text-gray-300 hover:text-white p-2 rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-blue-500"
-            >
-              <ShoppingCart className="h-6 w-6" />
-            </button>
-          </div>
+    <div className="flex flex-row bg-black py-3 px-4 shadow-md">
+      {/* Left Section - Logo and Navigation */}
+      <div className="flex items-center w-1/3">
+        <h1 className="text-white font-bold text-3xl italic mr-8">DeV.</h1>
+        <div className="flex space-x-6">
+          <button
+            className="text-white font-bold text-2xl"
+            onClick={handlePlansButton}
+          >
+            Plans
+          </button>
+          <button
+            className="text-white font-bold text-2xl"
+            onClick={handleHomeButton}
+          >
+            Home
+          </button>
         </div>
+      </div>
+
+      {/* Middle Section - Search Bar */}
+      <div className="flex-1 max-w-xl mx-auto px-8">
+        <div className="flex bg-gray-600 rounded-full border border-gray-600">
+          <input
+            placeholder="Browse our courses..."
+            className="w-full bg-transparent px-6 py-2 rounded-full border-none focus:outline-none text-white"
+          />
+        </div>
+      </div>
+
+      {/* Right section: Cart */}
+      <div className="flex justify-end items-center w-1/3">
+        <button
+          onClick={handleCartButton}
+          className="text-gray-300 hover:text-white p-2 rounded-full hover:bg-gray-700"
+        >
+          <ShoppingCart className="h-6 w-6" />
+        </button>
+
+        <img
+          className="w-10 h-10 rounded-full cursor-pointer ml-4"
+          src={meImage}
+          alt="Profile avatar"
+          onClick={handleProfileClick}
+        />
       </div>
 
       {/* Loading Overlay */}
@@ -88,7 +93,7 @@ const NavbarCoursePage = () => {
           <div className="w-16 h-16 border-t-4 border-blue-500 border-solid rounded-full animate-spin"></div>
         </div>
       )}
-    </nav>
+    </div>
   );
 };
 

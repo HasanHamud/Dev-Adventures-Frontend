@@ -57,7 +57,7 @@ function NavbarHomePage() {
   };
 
   return (
-    <div className="flex flex-row bg-black py-3 px-4 shadow-md">
+    <div className="flex flex-row bg-black bg-opacity-70 py-3 px-4 shadow-md fixed rounded-xl right-0 left-0 top-0 w-full">
       {/* Left Section - Logo and Navigation */}
       <div className="flex items-center w-1/3">
         <h1 className="text-white font-bold text-3xl italic mr-8">DeV.</h1>
@@ -74,7 +74,6 @@ function NavbarHomePage() {
           >
             Courses
           </button>
-          
         </div>
       </div>
 

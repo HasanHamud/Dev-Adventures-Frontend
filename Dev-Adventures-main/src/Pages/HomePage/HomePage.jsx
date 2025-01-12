@@ -2,10 +2,11 @@ import NavbarHomePage from "../../Components/Navigators/NavbarHomePage";
 import Features from "../../Components/HomePageComponents/Features";
 import Foot from "../../Components/HomePageComponents/Foot";
 import Level from "../../Components/HomePageComponents/StartingLevel";
-import homeimage from "../../Assets/images/homeimage.svg";
+import homeimage from "../../Assets/images/HomeImage.json";
 import HomeCourse from "../../Components/HomePageComponents/HomeCourse";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import LottieAnimation from "lottie-react";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -30,33 +31,41 @@ const HomePage = () => {
       <NavbarHomePage />
 
       {/* Header */}
-      <header className="mt-4 text-start mx-10 flex flex-row items-center justify-around h-screen">
-        <div>
-          <h1 className="text-white text-4xl mb-1 font-bold">
-            Learn, Code, Connect
-          </h1>
-          <p className="text-white text-xl">
-            We Connect Students And Instructors{" "}
-          </p>
-          <p className="text-white text-xl mb-2">
-            To Bring Software Innovation
-          </p>
+      <header className="text-start  flex flex-row items-center justify-center h-screen w-full">
+        <div className="flex-grow flex flex-col items-center justify-start">
+          <div className="flex flex-col items-start justify-start">
+            <h1 className="text-white text-4xl mb-1 font-bold">
+              Learn, Code, Connect
+            </h1>
+            <div className="flex flex-col items-start justify-start mb-2">
+              <p className="text-white text-xl">
+                We Connect Students And Instructors{" "}
+              </p>
+              <p className="text-white text-xl mb-2">
+                To Bring Software Innovation
+              </p>
+            </div>
 
-          <div className="space-x-3">
-            <button
-              onClick={handleJoinNowClick}
-              className="text-white text-xl border bg-blue-500 border-blue-500 px-6 py-1 rounded-xl hover:bg-blue-600 transition-colors"
-            >
-              Join Now
-            </button>
-            <button className="text-white text-xl border bg-gray-800 border-gray-800 px-6 py-1 rounded-xl">
-              {" "}
-              Our Services{" "}
-            </button>
+            <div className="space-x-3 flex items-center justify-start">
+              <button
+                onClick={handleJoinNowClick}
+                className="text-white text-xl border bg-blue-500 border-blue-500 px-6 py-1 rounded-xl hover:bg-blue-600 transition-colors"
+              >
+                Join Now
+              </button>
+              <button className="text-white text-xl border bg-gray-800 border-gray-800 px-6 py-1 rounded-xl">
+                {" "}
+                Our Services{" "}
+              </button>
+            </div>
           </div>
         </div>
-        <div>
-          <img src={homeimage} alt="Home illustration" />{" "}
+        <div className=" flex-grow -z-10">
+          <LottieAnimation
+            className=" w-5/6"
+            animationData={homeimage}
+            loop={true}
+          ></LottieAnimation>
         </div>
       </header>
 
@@ -75,7 +84,7 @@ const HomePage = () => {
       </section> */}
 
       {/* Features Section */}
-      <div className="h-screen ">
+      <div className="h-screen">
         <Features />
       </div>
 
