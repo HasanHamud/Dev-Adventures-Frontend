@@ -122,7 +122,10 @@ const ProfileTabs = () => {
       );
     } catch (err) {
       console.error("Error updating profile:", err);
-      setError(err.response?.data?.message || "Failed to update profile.");
+      setError(
+        err.response?.data?.message ||
+          "UnAuthorized to Update Your profile. Please Contact the admin or the owner."
+      );
       setEditValues((prev) => ({ ...prev, [field]: userData[field] }));
     }
   };

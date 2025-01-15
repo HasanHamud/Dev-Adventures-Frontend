@@ -7,7 +7,6 @@ import { useSnackbar } from "notistack";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import "react-toastify/ReactToastify.css";
 
-
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,11 +18,14 @@ const LoginForm = () => {
 
   const handleLogin = async (email, password) => {
     try {
-      const loginResponse = await axios.post("http://localhost:5101/api/Login", {
-        email,
-        password,
-      });
-
+      const loginResponse = await axios.post(
+        "http://localhost:5101/api/Login",
+        {
+          email,
+          password,
+        }
+      );
+      console.log(loginResponse.data);
       const profileResponse = await axios.get(
         `http://localhost:5101/api/profile/${loginResponse.data.id}`
       );
@@ -34,7 +36,7 @@ const LoginForm = () => {
         JSON.stringify({
           email,
           id: loginResponse.data.id,
-          name: profileResponse.data.fullname
+          name: profileResponse.data.fullname,
         })
       );
 
@@ -49,6 +51,11 @@ const LoginForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!email || !password) {
+      setErrorMessage("Email and Password are required.");
+      enqueueSnackbar("Please fill in both fields.", { variant: "warning" });
+      return;
+    }
     handleLogin(email, password);
   };
 

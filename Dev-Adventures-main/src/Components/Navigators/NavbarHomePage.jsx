@@ -11,6 +11,7 @@ function NavbarHomePage() {
 
   useEffect(() => {
     const storedUserData = localStorage.getItem("userData");
+    console.log(storedUserData);
     if (storedUserData) {
       setUserData(JSON.parse(storedUserData));
     }
@@ -91,7 +92,9 @@ function NavbarHomePage() {
       <div className="flex justify-end items-center w-1/3">
         {userData ? (
           <div className="flex items-center">
-            <p className="text-white mx-4">Welcome, {userData.name}!</p>
+            <p className="text-white mx-4">
+              Welcome, {userData.fullName || userData.name}!
+            </p>
           </div>
         ) : (
           <div className="flex items-center space-x-2">

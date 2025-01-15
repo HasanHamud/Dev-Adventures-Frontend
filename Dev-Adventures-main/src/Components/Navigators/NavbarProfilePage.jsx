@@ -28,6 +28,7 @@ function NavbarProfilePage() {
   return (
     <div className="fixed top-0 left-0 w-screen  py-3  shadow-md bg-black">
       <div className="w-full flex flex-row gap-4 items-center px-10">
+        <h1 className="text-white font-bold text-3xl italic mr-8">DeV.</h1>
         <button
           className="text-white text-xl hover:text-gray-500"
           onClick={handleHomePage}
