@@ -8,6 +8,7 @@ import Providers from "./Components/Providers/providers";
 import CoursesPage from "./Pages/CoursePage/CoursePage";
 import PlanPage from "./Pages/PlanPage/PlanPage";
 import "./index.css";
+import CourseDetailsPage from "./Pages/CoursePage/CourseDetailsPage/CourseDetailsPage";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             <Route path="profile" element={<ProfilePage />} />
             <Route path="courses" element={<CoursesPage />} />
             <Route path="plans" element={<PlanPage />} />
+            <Route path="courses/details" element={<CourseDetailsPage />} />
           </Routes>
         </BrowserRouter>
       </SnackbarProvider>
