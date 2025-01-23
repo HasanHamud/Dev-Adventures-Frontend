@@ -1,9 +1,9 @@
+/* eslint-disable react/prop-types */
 import { Book, ChevronRight, Clock, Code, Star, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DeleteCourseModal } from "../../Modals/CoursesModals/DeleteCourseModal";
 
-/* eslint-disable react/prop-types */
 export function CourseCard({ course }) {
   const [isLoading, setIsLoading] = useState(null);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -13,7 +13,7 @@ export function CourseCard({ course }) {
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
-      navigate("/courses/details");
+      navigate("/courses/details", { state: { courseData: course } });
     }, 1000);
   };
 
