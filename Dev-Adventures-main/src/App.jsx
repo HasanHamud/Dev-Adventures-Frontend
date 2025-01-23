@@ -7,6 +7,8 @@ import ProfilePage from "./Pages/ProfilePage/ProfilePage";
 import Providers from "./Components/Providers/providers";
 import CoursesPage from "./Pages/CoursePage/CoursePage";
 import PlanPage from "./Pages/PlanPage/PlanPage";
+import CartPage from "./Pages/CartPage/CartPage";
+import LessonPage from "./Pages/LessonPage/LessonPage";
 import "./index.css";
 import CourseDetailsPage from "./Pages/CoursePage/CourseDetailsPage/CourseDetailsPage";
 
@@ -27,6 +29,10 @@ function App() {
             <Route path="courses" element={<CoursesPage />} />
             <Route path="plans" element={<PlanPage />} />
             <Route path="courses/details" element={<CourseDetailsPage />} />
+            <Route path="cart" element={<CartPage />} />
+            <Route path="lesson" element={<LessonPage />} />
+
+
           </Routes>
         </BrowserRouter>
       </SnackbarProvider>

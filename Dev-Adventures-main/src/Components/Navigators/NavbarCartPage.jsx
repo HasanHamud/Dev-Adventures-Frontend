@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import meImage from "../../Assets/images/Me.jpg";
 import { ShoppingCart } from "lucide-react";
 
-function NavbarHomePage() {
+function NavbarCartPage() {
   const [isLoading, setIsLoading] = useState(null);
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
@@ -68,11 +68,21 @@ const handleCartClick = () => {
     }, 1000);
   };
 
+  const handleHomeClick = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      navigate("/");
+    }, 1000);
+  };
+
+
   return (
-    <div className="flex flex-row bg-black py-3 px-4 shadow-md">
+    <div className="flex flex-row bg-black py-3 px-4 shadow-md bg-opacity-50">
       {/* Left Section - Logo and Navigation */}
-      <div className="flex items-center w-1/3">
-        <h1 className="text-white font-bold text-3xl italic mr-8">DeV.</h1>
+      <div className="flex items-center w-1/2">
+      <button onClick={handleHomeClick}>        <h1 className="text-white font-bold text-3xl italic mr-8">DeV.</h1>
+</button>
         <div className="flex space-x-6">
           <button
             className="text-white font-bold text-2xl"
@@ -90,18 +100,10 @@ const handleCartClick = () => {
         </div>
       </div>
 
-      {/* Middle Section - Search Bar */}
-      <div className="flex justify-center w-1/3">
-        <div className="flex bg-gray-600 rounded-full border border-gray-600 w-full max-w-xl">
-          <input
-            placeholder="Browse our courses..."
-            className="w-full bg-transparent px-6 py-1 rounded-full border-none focus:outline-none text-white"
-          />
-        </div>
-      </div>
+      
 
       {/* Right Section - Auth Buttons and Profile */}
-      <div className="flex justify-end items-center w-1/3">
+      <div className="flex justify-end items-center w-1/2">
         {userData ? (
           <div className="flex items-center flex-row text-white">
          
@@ -147,4 +149,4 @@ onClick={handleCartClick}
   );
 }
 
-export default NavbarHomePage;
+export default NavbarCartPage;
