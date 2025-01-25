@@ -1,43 +1,39 @@
 /* eslint-disable react/prop-types */
-// In Next.js, this file would be called: app/providers.tsx
+// In a Next.js project, this file could be located at: app/providers.tsx
 "use client";
 
-// Since QueryClientProvider relies on useContext under the hood, we have to put 'use client' on top
-import {
-  isServer,
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-function makeQueryClient() {
+function createQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
         staleTime: 5 * 60 * 1000,
         retry: 5,
         retryDelay: 1000,
-        gcTime: 3 * 24 * 60 * 60 * 1000,
+        cacheTime: 3 * 24 * 60 * 60 * 1000,
       },
     },
   });
 }
 
-let browserQueryClient = undefined;
+let browserQueryClient = null;
 
 function getQueryClient() {
-  if (isServer) {
-    // Server: always make a new query client
-    return makeQueryClient();
-  } else {
-    // Browser: make a new query client if we don't already have one
-    // This is very important, so we don't re-make a new client if React
-    // suspends during the initial render. This may not be needed if we
-    // have a suspense boundary BELOW the creation of the query client
-    if (!browserQueryClient) browserQueryClient = makeQueryClient();
-    return browserQueryClient;
+  if (typeof window === "undefined") {
+    return createQueryClient();
   }
+  if (!browserQueryClient) {
+    browserQueryClient = createQueryClient();
+  }
+  return browserQueryClient;
 }
 
+/**
+ * Providers component to wrap your app with required context providers.
+ * @param {React.ReactNode} children - The children components to wrap.
+ * @returns {React.ReactElement} The wrapped children with QueryClientProvider.
+ */
 export default function Providers({ children }) {
   const queryClient = getQueryClient();
 

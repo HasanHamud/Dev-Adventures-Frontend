@@ -25,10 +25,10 @@ const LoginForm = () => {
           password,
         }
       );
-      console.log(loginResponse.data);
       const profileResponse = await axios.get(
         `http://localhost:5101/api/profile/${loginResponse.data.id}`
       );
+      console.log(profileResponse.data);
 
       localStorage.setItem("authToken", loginResponse.data.token);
       localStorage.setItem(

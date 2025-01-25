@@ -13,20 +13,21 @@ function NavbarHomePage() {
   useEffect(() => {
     const storedUserData = localStorage.getItem("userData");
     if (storedUserData) {
-      setUserData(JSON.parse(storedUserData));
+      const parsedData = JSON.parse(storedUserData);
+      setUserData({
+        name: parsedData.fullName || parsedData.name,
+        id: parsedData.id,
+      });
     }
   }, []);
 
-
-const handleCartClick = () => {
-  setIsLoading(true);
-  setTimeout(() => {
-
-    setIsLoading(false);
-    navigate("/cart");
-  }, 1000);
-};
-
+  const handleCartClick = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      navigate("/cart");
+    }, 1000);
+  };
 
   const handleLoginClick = () => {
     setIsLoading(true);
@@ -86,7 +87,6 @@ const handleCartClick = () => {
           >
             Courses
           </button>
-          
         </div>
       </div>
 
@@ -104,14 +104,11 @@ const handleCartClick = () => {
       <div className="flex justify-end items-center w-1/3">
         {userData ? (
           <div className="flex items-center flex-row text-white">
-         
-         
             <p className="text-white mx-4">Welcome, {userData.name}!</p>
-<button
-onClick={handleCartClick}
->            <ShoppingCart/>
-</button>
-          
+            <button onClick={handleCartClick}>
+              {" "}
+              <ShoppingCart />
+            </button>
           </div>
         ) : (
           <div className="flex items-center space-x-2">

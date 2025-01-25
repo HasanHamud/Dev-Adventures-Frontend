@@ -1,12 +1,12 @@
-import NavbarHomePage from "../../Components/Navigators/NavbarHomePage";
+import LottieAnimation from "lottie-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import homeimage from "../../Assets/images/HomeImage.json";
 import Features from "../../Components/HomePageComponents/Features";
 import Foot from "../../Components/HomePageComponents/Foot";
-import Level from "../../Components/HomePageComponents/StartingLevel";
-import homeimage from "../../Assets/images/HomeImage.json";
 import HomeCourse from "../../Components/HomePageComponents/HomeCourse";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import LottieAnimation from "lottie-react";
+import Level from "../../Components/HomePageComponents/StartingLevel";
+import Navbar from "../../Components/Navigators/Navbar";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -28,7 +28,7 @@ const HomePage = () => {
   return (
     <div>
       {/* Navbar */}
-      <NavbarHomePage />
+      <Navbar />
 
       {/* Header */}
       <header className="text-start  flex flex-row items-center justify-center h-screen w-full">
