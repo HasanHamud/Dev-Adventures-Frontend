@@ -40,7 +40,6 @@ const { enqueueSnackbar } = useSnackbar();
 
 }
 catch(error){
-  alert('Error Occured')
   enqueueSnackbar("Error Occured", { variant: "Error" });
 }
 }

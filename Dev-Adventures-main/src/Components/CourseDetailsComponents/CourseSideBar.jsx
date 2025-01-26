@@ -3,13 +3,42 @@ import axios from "axios";
 import { Plus } from "lucide-react";
 import { useLocation } from "react-router";
 import { format } from "date-fns";
+import { useSnackbar } from "notistack";
 
 export const CourseSidebar = () => {
+  const {enqueueSnackbar} = useSnackbar()
   const { state } = useLocation();
   const courseData = state?.courseData;
   const [requirements, setRequirements] = useState([]);
   const [isAdding, setIsAdding] = useState(false);
   const [newRequirement, setNewRequirement] = useState("");
+
+  const AddtoCart = async (courseId) => {
+
+    const token = localStorage.getItem('authToken'); 
+    
+    if (!token) {
+      alert('Please login to add courses to cart');
+     
+      return;
+    }
+    try {
+      const response = await axios.post(
+        `http://localhost:5101/api/Cart/Course/${courseId}`,
+        {}, 
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      enqueueSnackbar("Added Course to your Cart!", { variant: "success" });
+    } catch (error) {
+      enqueueSnackbar("Course Already exists", { variant: "error" });
+
+    }
+  };
+
 
   const formatDate = (dateString) => {
     if (!dateString) return "Not specified";
@@ -154,7 +183,10 @@ export const CourseSidebar = () => {
         </div>
 
         {/* Enroll Button */}
-        <button className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg">
+        <button className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg"
+        onClick={() => AddtoCart(courseData.id)}
+        
+        >
           Enroll Now for ${courseData?.price || "99.99"}
         </button>
       </div>
