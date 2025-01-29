@@ -72,7 +72,6 @@ const AddCourseModal = ({ isOpen, onClose, onCourseAdded }) => {
       formDataToSubmit.append("Level", formData.level);
       formDataToSubmit.append("Language", formData.language);
 
-      // Image is now optional
       if (formData.imageFile) {
         formDataToSubmit.append("ImgURL", formData.imageFile);
       }

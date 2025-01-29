@@ -9,14 +9,35 @@ import {
   ImageIcon,
   Pencil,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DeleteCourseModal } from "../../Modals/CoursesModals/DeleteCourseModal";
+import { jwtDecode } from "jwt-decode";
 
 export function CourseCard({ course, onEdit }) {
   const [isLoading, setIsLoading] = useState(null);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        const roles =
+          decodedToken[
+            "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+          ];
+        const userIsAdmin = Array.isArray(roles)
+          ? roles.includes("Admin")
+          : roles === "Admin";
+        setIsAdmin(userIsAdmin);
+      } catch (error) {
+        console.error("Error decoding token:", error);
+      }
+    }
+  }, []);
 
   const handleStartLearningClick = () => {
     setIsLoading(true);
@@ -60,14 +81,16 @@ export function CourseCard({ course, onEdit }) {
             <span className="flex text-gray-300 text-m">{course.rating}</span>
             <Star className="h-4 w-4 fill-current" />
           </div>
-          <div className="flex items-center gap-2">
-            <button onClick={() => onEdit(course.id)}>
-              <Pencil className="h-4 w-4 text-blue-500 hover:text-blue-400" />
-            </button>
-            <button onClick={() => setDeleteModalOpen(true)}>
-              <Trash2 color="red" />
-            </button>
-          </div>
+          {isAdmin && (
+            <div className="flex items-center gap-2">
+              <button onClick={() => onEdit(course.id)}>
+                <Pencil className="h-4 w-4 text-blue-500 hover:text-blue-400" />
+              </button>
+              <button onClick={() => setDeleteModalOpen(true)}>
+                <Trash2 className="text-red-500 hover:text-red-600" />
+              </button>
+            </div>
+          )}
         </div>
         <h3 className="text-lg font-bold text-white mb-2">{course.title}</h3>
         <p className="text-gray-400 text-sm mb-3">{course.description}</p>
@@ -79,8 +102,7 @@ export function CourseCard({ course, onEdit }) {
           <div className="flex items-center text-purple-500 text-sm">
             <Book className="h-4 w-4 mr-2" />
             <span>
-              {" "}
-              <span className="text-lg">12 {course.lessons}</span> lessons{" "}
+              <span className="text-lg">12 {course.lessons}</span> lessons
             </span>
           </div>
           <div className="flex items-center font-bold text-yellow-400 text-sm">
