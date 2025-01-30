@@ -2,12 +2,11 @@
 import { jwtDecode } from "jwt-decode";
 import { PlusCircle } from "lucide-react";
 import { useEffect, useState } from "react";
-import { FaPencilAlt } from "react-icons/fa";
 import AddCourseModal from "../../Modals/CoursesModals/AddCourseModal";
 
 export function CoursesHeader() {
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -44,22 +43,18 @@ export function CoursesHeader() {
             <div className="flex gap-5">
               <button
                 className="flex bg-blue-500 hover:bg-blue-600 px-4 py-3 rounded-lg font-medium my-2 gap-2"
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => setIsAddModalOpen(true)}
               >
                 <PlusCircle className="h-5 w-4" />
                 Add Course
-              </button>
-              <button className="flex bg-yellow-500 hover:bg-yellow-600 px-4 py-3 rounded-lg font-medium my-2 gap-2">
-                <FaPencilAlt className="h-5 w-4" />
-                Edit Course
               </button>
             </div>
           )}
         </div>
       </div>
       <AddCourseModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
       />
     </div>
   );

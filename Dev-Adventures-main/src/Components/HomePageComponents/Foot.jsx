@@ -1,37 +1,77 @@
+import React from 'react';
+import { Mail, Facebook, Twitter, Instagram, Github } from 'lucide-react';
 
-function Foot(){
-    return(
-    <div className="w-full h-72 flex flex-row items-center  text-white text-stroke-3 font-bold mt-5 ">
-    
-    <div className="flex flex-col w-1/2 mb-auto mt-3 gap-10 ml-5">    
-    <p className="text-xl">Contact Us</p>
-    <p className="text-xl">Email:...</p>
-    </div>
+const Foot = () => {
+  return (
+    <footer className="w-full text-white py-5 mt-5">
+      <div className="w-full flex flex-col md:flex-row items-start justify-between px-8 max-w-7xl mx-auto">
+        {/* Contact Section */}
+        <div className="flex flex-col space-y-4 mb-8 md:mb-0">
+          <h2 className="text-xl font-bold mb-2">Contact Us</h2>
+          <a 
+            href="mailto:DevAdventures@gmail.com" 
+            className="flex items-center hover:text-blue-400 transition-colors"
+          >
+            <Mail className="w-4 h-4 mr-2" />
+            DevAdventures@gmail.com
+          </a>
+          <div className="flex space-x-4 mt-4">
+            <a href="#" className="hover:text-blue-400 transition-colors">
+              <Facebook className="w-5 h-5" />
+            </a>
+            <a href="#" className="hover:text-blue-400 transition-colors">
+              <Twitter className="w-5 h-5" />
+            </a>
+            <a href="#" className="hover:text-blue-400 transition-colors">
+              <Instagram className="w-5 h-5" />
+            </a>
+            <a href="#" className="hover:text-blue-400 transition-colors">
+              <Github className="w-5 h-5" />
+            </a>
+          </div>
+        </div>
 
-    <div className="flex flex-row w-1/2 justify-between p-3 mb-auto mt-3 mr-5">
-    <div className="flex flex-col items-center space-y-7">
-    <p className="text-xl">About us</p>
-    <a>History</a>
-    <a>Team Members</a>
-    <a>Feedback</a>
-    </div>
-    <div className="flex flex-col items-center space-y-7">
-    <p className="text-xl">Tutorials</p>
-    <a>C++ Basics</a>
-    <a>Python Basics</a>
-    <a>Algorithms and Data Structures</a>
-    </div>
-    <div className="flex flex-col items-center space-y-7">
-    <p className="text-xl">Legal</p>
-    <a>Sharing</a>
-    <a>Privacy</a>
-    <a>Terms</a>
-    </div>
-  
+        {/* Main Footer Navigation */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* About Us Section */}
+          <div className="flex flex-col space-y-3">
+            <h2 className="text-xl font-bold mb-2">About us</h2>
+            <a href="#" className="hover:text-blue-400 transition-colors">History</a>
+            <a href="#" className="hover:text-blue-400 transition-colors">Team Members</a>
+            <a href="#" className="hover:text-blue-400 transition-colors">Feedback</a>
+            <a href="#" className="hover:text-blue-400 transition-colors">Careers</a>
+          </div>
 
-    </div>
-    
-    </div>
-    )
-}
+          {/* Tutorials Section */}
+          <div className="flex flex-col space-y-3">
+            <h2 className="text-xl font-bold mb-2">Tutorials</h2>
+            <a href="#" className="hover:text-blue-400 transition-colors">C++ Basics</a>
+            <a href="#" className="hover:text-blue-400 transition-colors">Python Basics</a>
+            <a href="#" className="hover:text-blue-400 transition-colors">Algorithms & Data Structures</a>
+            <a href="#" className="hover:text-blue-400 transition-colors">Web Development</a>
+          </div>
+
+          {/* Legal Section */}
+          <div className="flex flex-col space-y-3">
+            <h2 className="text-xl font-bold mb-2">Legal</h2>
+            <a href="#" className="hover:text-blue-400 transition-colors">Sharing</a>
+            <a href="#" className="hover:text-blue-400 transition-colors">Privacy Policy</a>
+            <a href="#" className="hover:text-blue-400 transition-colors">Terms of Service</a>
+            <a href="#" className="hover:text-blue-400 transition-colors">Cookie Policy</a>
+          </div>
+        </div>
+      </div>
+
+      {/* Copyright Bar */}
+      <div className="w-full border-t border-gray-700 mt-6">
+        <div className="max-w-7xl mx-auto px-8 py-1">
+          <p className="text-sm text-gray-400 text-center">
+            © {new Date().getFullYear()} DevAdventures. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
 export default Foot;

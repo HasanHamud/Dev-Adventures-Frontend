@@ -13,20 +13,29 @@ function NavbarHomePage() {
   useEffect(() => {
     const storedUserData = localStorage.getItem("userData");
     if (storedUserData) {
-      setUserData(JSON.parse(storedUserData));
+      const parsedData = JSON.parse(storedUserData);
+      setUserData({
+        name: parsedData.fullName || parsedData.name,
+        id: parsedData.id,
+      });
     }
   }, []);
 
+  const handleCartClick = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      navigate("/cart");
+    }, 1000);
+  };
 
-const handleCartClick = () => {
-  setIsLoading(true);
-  setTimeout(() => {
-
-    setIsLoading(false);
-    navigate("/cart");
-  }, 1000);
-};
-
+  const handleHomeClick = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      navigate("/");
+    }, 1000);
+  };
 
   const handleLoginClick = () => {
     setIsLoading(true);
@@ -59,6 +68,13 @@ const handleCartClick = () => {
       navigate("/plans");
     }, 1000);
   };
+  const handleAboutClick = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      navigate("/about");
+    }, 1000);
+  };
 
   const handleCoursesClick = () => {
     setIsLoading(true);
@@ -72,7 +88,10 @@ const handleCartClick = () => {
     <div className="flex flex-row bg-black py-3 px-4 shadow-md">
       {/* Left Section - Logo and Navigation */}
       <div className="flex items-center w-1/3">
-        <h1 className="text-white font-bold text-3xl italic mr-8">DeV.</h1>
+      <button onClick={handleHomeClick}>
+      <h1 className="text-white font-bold text-3xl italic mr-8">DeV.</h1>
+
+      </button>
         <div className="flex space-x-6">
           <button
             className="text-white font-bold text-2xl"
@@ -86,7 +105,13 @@ const handleCartClick = () => {
           >
             Courses
           </button>
-          
+
+          <button
+            className="text-white font-bold text-2xl"
+            onClick={handleAboutClick}
+          >
+            About
+          </button>
         </div>
       </div>
 
@@ -104,14 +129,11 @@ const handleCartClick = () => {
       <div className="flex justify-end items-center w-1/3">
         {userData ? (
           <div className="flex items-center flex-row text-white">
-         
-         
             <p className="text-white mx-4">Welcome, {userData.name}!</p>
-<button
-onClick={handleCartClick}
->            <ShoppingCart/>
-</button>
-          
+            <button onClick={handleCartClick}>
+              {" "}
+              <ShoppingCart />
+            </button>
           </div>
         ) : (
           <div className="flex items-center space-x-2">

@@ -3,7 +3,7 @@ import { useLocation } from "react-router";
 export const NavbarCourseDetailsPage = () => {
   const { state } = useLocation();
   const courseData = state?.courseData;
-
+  console.log(courseData);
   return (
     <div className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-gray-900/80 border-b border-gray-800">
       <div className="max-w-7xl mx-auto">

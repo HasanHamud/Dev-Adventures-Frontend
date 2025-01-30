@@ -1,13 +1,24 @@
-// eslint-disable-next-line react/prop-types
 function Level({ title, feature1, feature2, feature3 }) {
   return (
-    <div className="text-white mt-5 flex flex-col w-1/4 h-64 shadow-md  rounded-lg overflow-hidden space-y-4 bg-gray-700 hover:bg-blue-500 transition-all cursor-default hover:text-white">
-      <h1 className="text-3xl text-center pt-3">{title}</h1>
-      <div>
-        <ul className="list-disc">
-          <li className="text-xl m-6">{feature1}</li>
-          <li className="text-xl m-6">{feature2}</li>
-          <li className="text-xl m-6">{feature3}</li>
+    <div className="relative text-gray-100 mt-5 flex flex-col w-1/4 min-h-[320px] rounded-xl overflow-hidden bg-black hover:bg-blue-500 transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-xl">
+      {/* Header Section */}
+      <h1 className="text-3xl font-bold text-center py-6 px-4 border-b border-gray-700">{title}</h1>
+      
+      {/* Features Section */}
+      <div className="flex-grow p-6">
+        <ul className="space-y-4">
+          <li className="flex items-start space-x-3">
+            <span className="inline-block w-1.5 h-1.5 mt-2 rounded-full bg-blue-500" />
+            <span className="text-lg">{feature1}</span>
+          </li>
+          <li className="flex items-start space-x-3">
+            <span className="inline-block w-1.5 h-1.5 mt-2 rounded-full bg-blue-500" />
+            <span className="text-lg">{feature2}</span>
+          </li>
+          <li className="flex items-start space-x-3">
+            <span className="inline-block w-1.5 h-1.5 mt-2 rounded-full bg-blue-500" />
+            <span className="text-lg">{feature3}</span>
+          </li>
         </ul>
       </div>
     </div>

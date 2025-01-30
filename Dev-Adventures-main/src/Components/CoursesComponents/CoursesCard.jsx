@@ -1,10 +1,19 @@
 /* eslint-disable react/prop-types */
-import { Book, ChevronRight, Clock, Code, Star, Trash2 } from "lucide-react";
+import {
+  Book,
+  ChevronRight,
+  Clock,
+  Code,
+  Star,
+  Trash2,
+  ImageIcon,
+  Pencil,
+} from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DeleteCourseModal } from "../../Modals/CoursesModals/DeleteCourseModal";
 
-export function CourseCard({ course }) {
+export function CourseCard({ course, onEdit }) {
   const [isLoading, setIsLoading] = useState(null);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const navigate = useNavigate();
@@ -19,6 +28,23 @@ export function CourseCard({ course }) {
 
   return (
     <div className="bg-gray-800 rounded-lg shadow-xl overflow-hidden border border-gray-700 hover:border-blue-500 transition-colors flex flex-col h-full">
+      <div className="relative h-48 w-full">
+        {course.imgURL ? (
+          <img
+            src={`http://localhost:5101${course.imgURL}`}
+            alt={course.title || "Course Image"}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gray-700 flex items-center justify-center">
+            <ImageIcon className="text-gray-500 h-16 w-16" strokeWidth={1} />
+            <span className="absolute bottom-2 left-2 text-gray-400 text-xs">
+              No Image
+            </span>
+          </div>
+        )}
+      </div>
+
       <div className="p-5 flex flex-col flex-1">
         <div className="flex items-center gap-3 mb-3">
           <div className="flex items-center gap-3">
@@ -34,13 +60,14 @@ export function CourseCard({ course }) {
             <span className="flex text-gray-300 text-m">{course.rating}</span>
             <Star className="h-4 w-4 fill-current" />
           </div>
-          <button
-            onClick={() => {
-              setDeleteModalOpen(true);
-            }}
-          >
-            <Trash2 color="red" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={() => onEdit(course.id)}>
+              <Pencil className="h-4 w-4 text-blue-500 hover:text-blue-400" />
+            </button>
+            <button onClick={() => setDeleteModalOpen(true)}>
+              <Trash2 color="red" />
+            </button>
+          </div>
         </div>
         <h3 className="text-lg font-bold text-white mb-2">{course.title}</h3>
         <p className="text-gray-400 text-sm mb-3">{course.description}</p>
@@ -77,7 +104,6 @@ export function CourseCard({ course }) {
           <ChevronRight className="h-4 w-4" />
         </div>
       </button>
-
       {/* Loading Overlay */}
       {isLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
