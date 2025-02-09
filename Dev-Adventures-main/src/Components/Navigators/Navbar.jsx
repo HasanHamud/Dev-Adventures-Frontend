@@ -1,19 +1,28 @@
-import { ShoppingCart } from "lucide-react";
-import { useEffect, useState } from "react";
+/* eslint-disable no-unused-vars */
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { ShoppingCart } from "lucide-react";
 
 const Navbar = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [userData, setUserData] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const courseData = location.state?.courseData;
+
   const isCourseDetailsPage = location.pathname.startsWith("/course/");
+  const isHomePage = location.pathname === "/";
+  const isProfilePage = location.pathname === "/profile";
 
   useEffect(() => {
     const storedUserData = localStorage.getItem("userData");
     if (storedUserData) {
-      setUserData(JSON.parse(storedUserData));
+      const parsedData = JSON.parse(storedUserData);
+      setUserData({
+        name: parsedData.fullName || parsedData.name,
+        id: parsedData.id,
+      });
     }
   }, []);
 
@@ -35,7 +44,37 @@ const Navbar = () => {
     }, 1000);
   };
 
-  const renderNavItems = () => {
+  const getNavItems = () => {
+    const pathToItems = {
+      "/": [
+        { label: "Plans", path: "/plans" },
+        { label: "Courses", path: "/courses" },
+      ],
+      "/courses": [{ label: "Plans", path: "/plans" }],
+      "/cart": [
+        { label: "Plans", path: "/plans" },
+        { label: "Courses", path: "/courses" },
+      ],
+      "/profile": [
+        { label: "About", path: "/about" },
+        { label: "Services", path: "/services" },
+        { label: "Contact", path: "/contact" },
+      ],
+    };
+
+    return pathToItems[location.pathname] || pathToItems["/"];
+  };
+
+  const renderBrandLogo = () => (
+    <button
+      onClick={() => navigateWithLoading("/")}
+      className="text-white font-bold text-3xl italic mr-8 hover:text-gray-300 transition-colors"
+    >
+      DeV.
+    </button>
+  );
+
+  const renderNavLinks = () => {
     if (isCourseDetailsPage) {
       return (
         <div className="flex items-center">
@@ -55,98 +94,17 @@ const Navbar = () => {
       );
     }
 
-    const navItems = {
-      "/courses": [
-        { label: "Plans", path: "/plans" },
-        { label: "Home", path: "/" },
-        { label: "About", path: "/about" },
-
-      ],
-      "/cart": [
-        { label: "Plans", path: "/plans" },
-        { label: "Courses", path: "/courses" },
-        { label: "About", path: "/about" },
-
-      ],
-      "/profile": [
-        { label: "Home", path: "/" },
-        { label: "About", path: "/about" },
-        { label: "Services", path: "/services" },
-        { label: "Contact", path: "/contact" },
-        { label: "About", path: "/about" },
-      ],
-
-      "/about": [
-        { label: "Home", path: "/" },
-        { label: "About", path: "/about" },
-        { label: "Services", path: "/services" },
-        { label: "Contact", path: "/contact" },
-
-      ],
-      default: [
-        { label: "Plans", path: "/plans" },
-        { label: "Courses", path: "/courses" },
-        { label: "About", path: "/about" },
-
-      ],
-    };
-
-    return (navItems[location.pathname] || navItems.default).map((item) => (
-      <button
-        key={item.path}
-        className="text-white font-bold text-2xl hover:text-gray-400"
-        onClick={() => navigateWithLoading(item.path)}
-      >
-        {item.label}
-      </button>
-    ));
-  };
-
-  const renderRightSection = () => {
-    if (isCourseDetailsPage) {
-      return (
-        <button className="px-6 py-2 bg-blue-500 text-white border border-blue-500 rounded hover:bg-blue-600 hover:border-blue-600 transition-colors">
-          Start Learning
-        </button>
-      );
-    }
-
-    if (location.pathname === "/profile") {
-      return (
-        <button
-          onClick={handleLogout}
-          className="px-4 py-2 bg-blue-500 text-white border border-blue-500 rounded hover:bg-red-600 hover:border-red-600"
-        >
-          Log out
-        </button>
-      );
-    }
-
     return (
-      <div className="flex items-center">
-        {userData ? (
-          <div className="flex items-center">
-            <p className="text-white mx-4">Welcome, {userData.name}!</p>
-            <button onClick={() => navigateWithLoading("/cart")}>
-              <ShoppingCart className="text-white" />
-            </button>
-          </div>
-        ) : (
-          <div className="flex items-center space-x-2">
-            <button
-              className="px-4 py-2 bg-gray-800 text-white border border-gray-800 rounded hover:bg-gray-700"
-              onClick={() => navigateWithLoading("/login")}
-            >
-              Login
-            </button>
-            <button
-              className="px-4 py-2 bg-blue-500 text-white border border-blue-500 rounded hover:bg-blue-600"
-              onClick={() => navigateWithLoading("/signup")}
-            >
-              Sign Up
-            </button>
-          </div>
-        )}
+      <div className="flex space-x-6">
+        {getNavItems().map((item) => (
+          <button
+            key={item.path}
+            className="text-white font-bold text-2xl hover:text-gray-400 transition-colors"
+            onClick={() => navigateWithLoading(item.path)}
+          >
+            {item.label}
+          </button>
+        ))}
       </div>
     );
   };
@@ -157,6 +115,8 @@ const Navbar = () => {
         <div className="flex-1 max-w-xl mx-auto px-8">
           <div className="flex bg-gray-600 rounded-full border border-gray-600">
             <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Browse our courses..."
               className="w-full bg-transparent px-6 py-2 rounded-full border-none focus:outline-none text-white"
             />
@@ -167,22 +127,82 @@ const Navbar = () => {
     return null;
   };
 
+  const renderAuthSection = () => {
+    if (isCourseDetailsPage) {
+      return (
+        <button className="px-6 py-2 bg-blue-500 text-white border border-blue-500 rounded hover:bg-blue-600 hover:border-blue-600 transition-colors">
+          Start Learning
+        </button>
+      );
+    }
+
+    if (isProfilePage) {
+      return (
+        <button
+          onClick={handleLogout}
+          className="px-4 py-2 bg-blue-500 text-white border border-blue-500 rounded hover:bg-red-600 hover:border-red-600 transition-colors"
+        >
+          Log out
+        </button>
+      );
+    }
+
+    if (userData) {
+      return (
+        <div className="flex items-center">
+          <p className="text-white mx-4">Welcome, {userData.name}!</p>
+          <button
+            onClick={() => navigateWithLoading("/cart")}
+            className="hover:text-gray-400 transition-colors"
+          >
+            <ShoppingCart className="text-white" />
+          </button>
+          {!isProfilePage && (
+            <button
+              onClick={() => navigateWithLoading("/profile")}
+              className="ml-4"
+            >
+              <img
+                className="w-10 h-10 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
+                src="/api/placeholder/40/40"
+                alt="Profile avatar"
+              />
+            </button>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex items-center space-x-2">
+        <button
+          className="px-4 py-2 bg-gray-800 text-white border border-gray-800 rounded hover:bg-gray-700 transition-colors"
+          onClick={() => navigateWithLoading("/login")}
+        >
+          Login
+        </button>
+        <button
+          className="px-4 py-2 bg-blue-500 text-white border border-blue-500 rounded hover:bg-blue-600 transition-colors"
+          onClick={() => navigateWithLoading("/signup")}
+        >
+          Sign Up
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div className="relative">
       <div className="fixed top-0 left-0 right-0 z-50 bg-black py-3 px-4 shadow-md backdrop-blur-md bg-opacity-80">
         <div className="flex flex-row items-center justify-between w-full">
           <div className="flex items-center">
-            <button onClick={() => navigateWithLoading("/")}>
-              <h1 className="text-white font-bold text-3xl italic mr-8">
-                DeV.
-              </h1>
-            </button>
-            <div className="flex space-x-6">{renderNavItems()}</div>
+            {renderBrandLogo()}
+            {renderNavLinks()}
           </div>
 
           {renderSearchBar()}
 
-          <div className="flex items-center">{renderRightSection()}</div>
+          <div className="flex items-center">{renderAuthSection()}</div>
         </div>
       </div>
 
