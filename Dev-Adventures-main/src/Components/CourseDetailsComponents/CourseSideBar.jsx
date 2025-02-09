@@ -1,17 +1,19 @@
-/* eslint-disable react/prop-types */
-import { useState, useEffect } from "react";
-import useSWR, { mutate } from "swr";
+/* eslint-disable no-unused-vars */
 import axios from "axios";
-import { Plus, Pencil, Trash2 } from "lucide-react";
-import { useLocation } from "react-router";
 import { format } from "date-fns";
 import { jwtDecode } from "jwt-decode";
+import { Pencil, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { enqueueSnackbar } from "notistack";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import useSWR, { mutate } from "swr";
+import { CartModal } from "../../Modals/CartItemsModal/CartModal";
 import { DeleteModal } from "../../Modals/CourseDetailsModals/DeleteRequirmentModal";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 export const CourseSidebar = () => {
+  const navigate = useNavigate();
   const { state } = useLocation();
   const courseData = state?.courseData;
   const [isAdmin, setIsAdmin] = useState(false);
@@ -20,6 +22,8 @@ export const CourseSidebar = () => {
   const [editingRequirementId, setEditingRequirementId] = useState(null);
   const [editedRequirement, setEditedRequirement] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isCartModalOpen, setIsCartModalOpen] = useState(false);
+
   const [deleteModal, setDeleteModal] = useState({
     isOpen: false,
     requirement: null,
@@ -172,6 +176,52 @@ export const CourseSidebar = () => {
     }
   };
 
+  const handleEnrollNow = async () => {
+    try {
+      const response = await axios.post(
+        `http://localhost:5101/api/Cart/Course/${courseData.id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        }
+      );
+
+      setIsCartModalOpen(true);
+
+      enqueueSnackbar("Course added to cart successfully!", {
+        variant: "success",
+      });
+    } catch (error) {
+      if (error.response?.status === 400) {
+        if (error.response?.data === "Course Already in Cart") {
+          setIsCartModalOpen(true);
+          enqueueSnackbar("This course is already in your cart.", {
+            variant: "info",
+          });
+        } else if (error.response?.data === "User cart not found.") {
+          enqueueSnackbar("User cart not found. Please try again later.", {
+            variant: "warning",
+          });
+        } else {
+          enqueueSnackbar(
+            error.response?.data || "Failed to add course to cart",
+            { variant: "error" }
+          );
+        }
+      }
+    }
+  };
+
+  const handleViewCart = () => {
+    navigate("/cart");
+  };
+
+  const handleCloseCartModal = () => {
+    setIsCartModalOpen(false);
+  };
+
   if (error) return <div>Failed to load requirements.</div>;
   if (!requirements) return <div>Loading...</div>;
 
@@ -188,6 +238,12 @@ export const CourseSidebar = () => {
         onClose={() => setDeleteModal({ isOpen: false, requirement: null })}
         onConfirm={handleDeleteConfirm}
         requirementDescription={deleteModal.requirement?.description}
+      />
+
+      <CartModal
+        isOpen={isCartModalOpen}
+        onClose={handleCloseCartModal}
+        onViewCart={handleViewCart}
       />
 
       <div className="bg-gray-800 p-6 rounded-lg">
@@ -313,7 +369,11 @@ export const CourseSidebar = () => {
         </div>
 
         {/* Enroll Button */}
-        <button className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg">
+        <button
+          onClick={handleEnrollNow}
+          className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg flex items-center justify-center"
+        >
+          <ShoppingCart className="mr-2 h-5 w-5" />
           Enroll Now for ${courseData?.price || "99.99"}
         </button>
       </div>
