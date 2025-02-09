@@ -14,6 +14,7 @@ import PlanPage from "./Pages/PlanPage/PlanPage";
 import ProfilePage from "./Pages/ProfilePage/ProfilePage";
 import RegisterPage from "./Pages/RegisterPage/RegisterPage";
 import About from "./Pages/AboutPage/About";
+import LessonDetailsPage from "./Pages/LessonPage/LessonDetailsPage/LessonDetailsPage";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -44,6 +45,8 @@ function App() {
               <Route path="cart" element={<CartPage />} />
               <Route path="lesson" element={<LessonPage />} />
               <Route path="about" element={<About />} />
+              <Route path="lesson/lessondetails" element={<LessonDetailsPage />} />
+
 
             </Routes>
           </BrowserRouter>

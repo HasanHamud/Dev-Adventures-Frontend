@@ -12,7 +12,7 @@ export function DeleteCourseModal({
 }) {
   const { enqueueSnackbar } = useSnackbar();
 
-  async function deleteCourse(courseId) {
+  async function deleteCourse() {
     console.log("course to delete", courseId);
     if (courseId) {
       try {

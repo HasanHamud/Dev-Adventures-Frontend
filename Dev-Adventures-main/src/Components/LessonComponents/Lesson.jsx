@@ -1,9 +1,22 @@
 import { useState } from "react";
 import { Lock, Clock, CheckCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-export default function Lesson({ number, status = "locked" }) {
+
+export default function Lesson({ number, status = "locked", lesson }) {
+
   const [hover, setHover] = useState(false);
+  const[Loading, setIsLoading] = useState(null)
+  const navigate = useNavigate()
 
+  const handleEnterLesson = () => {
+    setIsLoading(true);
+    console.log("Lesson being passed:", lesson); 
+    setTimeout(() => {
+      setIsLoading(false);
+      navigate("/lesson/lessondetails", { state: { lessonData: lesson } }); 
+    }, 1000);
+  };
   const getStatusIcon = () => {
     switch (status) {
       case "completed":
@@ -32,6 +45,7 @@ export default function Lesson({ number, status = "locked" }) {
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
         className={`w-40 h-32 rounded-lg ${getBgColor()} flex items-center justify-center hover:bg-gray-800 relative hover:shadow-[inset_0_0_30px_rgba(30,100,246,0.5)] transition-shadow duration-300`}
+     onClick={handleEnterLesson}
       >
         <span className="text-2xl font-bold text-white">{number}</span>
         {getStatusIcon()}
