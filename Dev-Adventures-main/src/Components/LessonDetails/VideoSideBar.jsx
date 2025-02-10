@@ -1,10 +1,16 @@
+/* eslint-disable react/prop-types */
 import { PlayCircle, PlusCircle, PencilIcon, Trash2 } from "lucide-react";
 import { useState } from "react";
 import AddVideoModal from "../../Modals/LessonDetailsModals/AddVideoModal";
 import EditVideoModal from "../../Modals/LessonDetailsModals/EditVideoModal";
 import DeleteVideoModal from "../../Modals/LessonDetailsModals/DeleteVideoModal";
 
-export default function VideoSideBar({ title, videos = [], lessonID, courseID, onVideoSelect }) {
+export default function VideoSideBar({
+  videos = [],
+  lessonID,
+  courseID,
+  onVideoSelect,
+}) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -57,7 +63,7 @@ export default function VideoSideBar({ title, videos = [], lessonID, courseID, o
         </button>
         <p className="py-4 px-4 text-xl whitespace-nowrap">Video List</p>
       </div>
-      
+
       <div className="text-white/90">
         {videos.length > 0 ? (
           videos.map((video, index) => (
@@ -73,13 +79,13 @@ export default function VideoSideBar({ title, videos = [], lessonID, courseID, o
                 </p>
               </div>
               <div className="flex flex-row space-x-2 pr-4">
-                <button 
+                <button
                   className="text-blue-500 hover:text-blue-600 transition-colors text-md"
                   onClick={(e) => handleOpenEditModal(video, e)}
                 >
                   <PencilIcon />
                 </button>
-                <button 
+                <button
                   className="text-red-500 hover:text-red-600 transition-colors text-md"
                   onClick={(e) => handleOpenDeleteModal(video, e)}
                 >
@@ -95,31 +101,31 @@ export default function VideoSideBar({ title, videos = [], lessonID, courseID, o
         )}
       </div>
 
-      <AddVideoModal 
+      <AddVideoModal
         lessonID={numericLessonID}
         courseId={numericCourseID}
-        isOpen={isAddModalOpen} 
+        isOpen={isAddModalOpen}
         onClose={handleCloseAddModal}
         onUpdate={handleVideoUpdate}
       />
-      
+
       {selectedVideo && (
         <>
-          <EditVideoModal 
+          <EditVideoModal
             courseId={numericCourseID}
             lessonId={numericLessonID}
             videoId={selectedVideo.id}
-            isOpen={isEditModalOpen} 
+            isOpen={isEditModalOpen}
             onClose={handleCloseEditModal}
             onUpdate={handleVideoUpdate}
           />
-          
-          <DeleteVideoModal 
+
+          <DeleteVideoModal
             courseId={numericCourseID}
             lessonId={numericLessonID}
             videoId={selectedVideo.id}
             videoTitle={selectedVideo.title}
-            isOpen={isDeleteModalOpen} 
+            isOpen={isDeleteModalOpen}
             onClose={handleCloseDeleteModal}
             onDelete={handleVideoUpdate}
           />

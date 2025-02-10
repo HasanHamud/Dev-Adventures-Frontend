@@ -7,6 +7,7 @@ import Foot from "../../Components/HomePageComponents/Foot";
 import HomeCourse from "../../Components/HomePageComponents/HomeCourse";
 import Level from "../../Components/HomePageComponents/StartingLevel";
 import Navbar from "../../Components/Navigators/Navbar";
+import ChatWidget from "../../Components/ChatComponent/Chat";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -149,6 +150,8 @@ const HomePage = () => {
           <div className="w-16 h-16 border-t-4 border-blue-500 border-solid rounded-full animate-spin"></div>
         </div>
       )}
+
+      <ChatWidget />
     </div>
   );
 };
