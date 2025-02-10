@@ -1,12 +1,11 @@
-import LottieAnimation from "lottie-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import homeimage from "../../Assets/images/HomeImage.json";
 import Features from "../../Components/HomePageComponents/Features";
 import Foot from "../../Components/HomePageComponents/Foot";
 import HomeCourse from "../../Components/HomePageComponents/HomeCourse";
 import Level from "../../Components/HomePageComponents/StartingLevel";
 import Navbar from "../../Components/Navigators/Navbar";
+import Logo from "../../Assets/images/Logo.png"
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -26,129 +25,150 @@ const HomePage = () => {
   };
 
   return (
-    <div>
-      {/* Navbar */}
-      <Navbar />
+    <div className="min-h-screen bg-gray-900">
+      {/* Content container */}
+      <div className="relative">
+        {/* Navbar */}
+        <div className="fixed w-full top-0 z-50 bg-gray-900/80 backdrop-blur-sm border-b border-blue-500/10">
+          <Navbar />
+        </div>
 
-      {/* Header */}
-      <header className="text-start  flex flex-row items-center justify-center h-screen w-full">
-        <div className="flex-grow flex flex-col items-center justify-start">
-          <div className="flex flex-col items-start justify-start">
-            <h1 className="text-white text-4xl mb-1 font-bold">
-              Learn, Code, Connect
-            </h1>
-            <div className="flex flex-col items-start justify-start mb-2">
-              <p className="text-white text-xl">
-                We Connect Students And Instructors{" "}
-              </p>
-              <p className="text-white text-xl mb-2">
-                To Bring Software Innovation
-              </p>
+        {/* Header */}
+        <header className="relative flex flex-row items-center justify-between px-12 h-screen overflow-hidden pt-20">
+          <div className="w-1/2">
+            <div className="flex flex-col items-start justify-start">
+              <h1 className="text-5xl mb-4 font-bold text-white bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-200">
+                Learn, Code, Connect
+              </h1>
+              <div className="flex flex-col items-start justify-start mb-6">
+                <p className="text-blue-100 text-2xl">
+                  We Connect Students And Instructors
+                </p>
+                <p className="text-blue-100 text-2xl mb-6">
+                  To Bring Software Innovation
+                </p>
+              </div>
+
+              <div className="space-x-4 flex items-center justify-start">
+                <button
+                  onClick={handleJoinNowClick}
+                  className="text-white text-xl bg-blue-600 px-8 py-3 rounded-lg hover:bg-blue-500 transition-all duration-300 shadow-lg hover:shadow-blue-500/20"
+                >
+                  Join Now
+                </button>
+                <button className="text-white text-xl border border-blue-400/30 px-8 py-3 rounded-lg hover:bg-blue-500/10 transition-all duration-300 backdrop-blur-sm">
+                  Our Services
+                </button>
+              </div>
             </div>
+          </div>
 
-            <div className="space-x-3 flex items-center justify-start">
-              <button
-                onClick={handleJoinNowClick}
-                className="text-white text-xl border bg-blue-500 border-blue-500 px-6 py-1 rounded-xl hover:bg-blue-600 transition-colors"
-              >
-                Join Now
-              </button>
-              <button className="text-white text-xl border bg-gray-800 border-gray-800 px-6 py-1 rounded-xl">
-                {" "}
-                Our Services{" "}
-              </button>
+          {/* Logo Display with smoother glow */}
+          <div className="w-1/2 h-full flex items-center justify-center relative">
+            <div className="absolute w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+            <div className="absolute w-64 h-64 bg-blue-400/5 rounded-full blur-2xl"></div>
+            <div className="relative w-96 h-96 animate-float">
+              <img 
+                src={Logo}
+                alt="Logo" 
+                className="w-full h-full object-contain filter drop-shadow-[0_0_30px_rgba(59,130,246,0.3)]"
+              />
+            </div>
+          </div>
+        </header>
+
+        {/* Features Section */}
+        <div className="min-h-screen relative">
+          <div className="relative">
+            <Features />
+          </div>
+        </div>
+
+        {/* Courses Section with distinct background */}
+        <div className="min-h-screen py-20 relative bg-gray-800/50">
+          <div className="relative">
+            <div className="flex flex-col items-center justify-center gap-6 text-white">
+              <div className="text-center mb-12">
+                <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-200 mb-4">
+                  Our Courses
+                </h1>
+                <h2 className="text-2xl text-blue-100">
+                  Start your journey to become a 10x Developer
+                </h2>
+              </div>
+              <div className="flex flex-row space-x-20 px-12">
+                <HomeCourse
+                  text="Python Programming Essentials"
+                  text2="A comprehensive introduction to Python, covering syntax, data types, control flow, functions, and basic..."
+                />
+                <HomeCourse
+                  text="Data Structures and Algorithms"
+                  text2="A deep dive into the fundamentals of data structures and algorithms"
+                />
+                <HomeCourse
+                  text="Mastering Javascript"
+                  text2="A step by step guide to mastering javascript from zero to hero"
+                />
+              </div>
             </div>
           </div>
         </div>
-        <div className=" flex-grow -z-10">
-          <LottieAnimation
-            className=" w-5/6"
-            animationData={homeimage}
-            loop={true}
-          ></LottieAnimation>
+
+        {/* Levels Section with distinct background */}
+        <div className="min-h-screen py-20 relative bg-gray-900">
+          <div className="relative">
+            <div className="text-center mb-12">
+              <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-200">
+                Our Roadmaps
+              </h1>
+            </div>
+            <div className="flex flex-row justify-center space-x-8 px-12">
+              <Level
+                title="Beginner"
+                feature1="Coding Fundamentals"
+                feature2="Getting Familiar with an IDE"
+                feature3="Build your first functional Project"
+              />
+              <Level
+                title="Intermediate"
+                feature1="Get familiar with OOP"
+                feature2="Learn what data structures are"
+                feature3="Algorithms and their purpose"
+              />
+              <Level
+                title="Advanced"
+                feature1="Multiple Paths"
+                feature2="Detailed Instructions"
+                feature3="CV approved functional projects"
+              />
+            </div>
+          </div>
         </div>
-      </header>
 
-      {/*Card Section */}
-      {/* {/* <section className='flex flex-col md:flex-row justify-evenly mb-6'>
-        <Card
-          url="https://cdn-icons-png.flaticon.com/512/2883/2883939.png"
-          title="Teacher"
-          description="This is the Teacher's plan"
-        />
-        <Card
-          url="https://cdn-icons-png.flaticon.com/512/2784/2784403.png"
-          title="Student"
-          description="This is the Student's plan"
-        />
-      </section> */}
-
-      {/* Features Section */}
-      <div className="h-screen">
-        <Features />
+        {/* Footer */}
+        <footer className="relative bg-black/80 backdrop-blur-sm border-t border-blue-500/10">
+          <Foot />
+        </footer>
       </div>
-
-      <div className="flex flex-col items-center justify-center gap-6 text-white h-screen">
-        <div className="mt-5 text-center">
-          <h1 className="text-3xl font-bold">Our Courses</h1>
-          <h1 className="text-xl">
-            Start your journey to become a 10x Developer
-          </h1>
-        </div>
-        <div className="flex flex-row space-x-20 my-24">
-          <HomeCourse
-            text="Python Programming Essentials"
-            text2="A comprehensive introduction to Python, covering syntax, data types, control flow, functions, and basic..."
-          />
-          <HomeCourse
-            text="Data Structures and Algorithms"
-            text2="A deep dive into the fundementals of data structures and algorithms"
-          />
-          <HomeCourse
-            text="Mastering Javascript"
-            text2="A step by step guide to mastering javascript from zero to hero"
-          />
-        </div>
-      </div>
-
-      {/* Levels Section */}
-      <div className="flex flex-col justify-evenly  bg-gray-700 bg-opacity-45 h-screen">
-        <div className="text-white text-2xl text-center flex-col mt-5">
-          <h1 className="text-3xl font-bold"> Our Roadmaps</h1>
-        </div>
-        <div className=" flex flex-row justify-center space-x-5 mb-10">
-          <Level
-            title="Beginner"
-            feature1="Coding Fundamentals"
-            feature2="Getting Familiar with an IDE"
-            feature3="Build your first functional Project"
-          />
-          <Level
-            title="Intermediate"
-            feature1="Get familiar with OOP"
-            feature2="Learn what data structures are"
-            feature3="Algorithms and their purpose"
-          />
-          <Level
-            title="Advanced"
-            feature1="Multiple Paths"
-            feature2="Detailed Instructions"
-            feature3="CV approved functional projects"
-          />
-        </div>
-      </div>
-
-      {/* Footer */}
-      <footer className="-mt-pxs">
-        <Foot />
-      </footer>
 
       {/* Loading Overlay */}
       {isLoading && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="w-16 h-16 border-t-4 border-blue-500 border-solid rounded-full animate-spin"></div>
         </div>
       )}
+
+      {/* Add the floating animation */}
+      <style jsx>{`
+        @keyframes float {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+          100% { transform: translateY(0px); }
+        }
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 };
