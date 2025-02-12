@@ -6,6 +6,7 @@ import { useSnackbar } from 'notistack';
 import { AddLessonModal } from '../../Modals/LessonModals/AddLessonModal';
 import EditLessonModal from "../../Modals/LessonModals/EditLessonModal";
 import DeleteLessonModal from "../../Modals/LessonModals/DeleteLessonModal";
+import { AddQuizModal } from '../../Modals/QuizModals/AddQuizModal';
 
 export default function LessonPage() {
   const [lessons, setLessons] = useState([]);
@@ -13,6 +14,7 @@ export default function LessonPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isAddQuizModalOpen, setIsAddQuizModalOpen] = useState(false);
   const [selectedLesson, setSelectedLesson] = useState(null);
   const { enqueueSnackbar } = useSnackbar();
 
@@ -55,10 +57,16 @@ export default function LessonPage() {
     setIsDeleteModalOpen(true);
   };
 
+  const handleAddQuiz = (lesson) => {
+    setSelectedLesson(lesson);
+    setIsAddQuizModalOpen(true);
+  };
+
   const handleCloseModals = () => {
     setIsAddModalOpen(false);
     setIsEditModalOpen(false);
     setIsDeleteModalOpen(false);
+    setIsAddQuizModalOpen(false);
     setSelectedLesson(null);
     fetchAllLessons();
   };
@@ -90,6 +98,12 @@ export default function LessonPage() {
             className="flex flex-col items-center justify-center relative w-full"
           >
             <div className='flex flex-row justify-end w-full space-x-2 mb-2'>
+              <button 
+                onClick={() => handleAddQuiz(lesson)}
+                className='p-2 text-purple-500 hover:text-purple-600 hover:bg-gray-800 rounded-full transition-all'
+              >
+                <PlusCircle className="w-4 h-4" />
+              </button>
               <button 
                 onClick={() => handleEditLesson(lesson)}
                 className='p-2 text-blue-500 hover:text-blue-600 hover:bg-gray-800 rounded-full transition-all'
@@ -132,6 +146,14 @@ export default function LessonPage() {
           lessonId={selectedLesson?.id}
           lessonTitle={selectedLesson?.title}
           onDelete={handleCloseModals}
+        />
+      )}
+
+      {isAddQuizModalOpen && (
+        <AddQuizModal
+          lessonId={selectedLesson?.id}
+          isOpen={isAddQuizModalOpen}
+          onClose={handleCloseModals}
         />
       )}
     </div>

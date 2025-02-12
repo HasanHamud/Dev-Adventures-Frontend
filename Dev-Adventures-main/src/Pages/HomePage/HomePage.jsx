@@ -29,7 +29,7 @@ const HomePage = () => {
       {/* Content container */}
       <div className="relative">
         {/* Navbar */}
-        <div className="fixed w-full top-0 z-50 bg-gray-900/80 backdrop-blur-sm border-b border-blue-500/10">
+        <div>
           <Navbar />
         </div>
 
