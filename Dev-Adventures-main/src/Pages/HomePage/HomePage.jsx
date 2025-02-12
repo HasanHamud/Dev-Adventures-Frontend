@@ -1,10 +1,13 @@
-import { useState } from "react";
+/* eslint-disable react/no-unknown-property */
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Features from "../../Components/HomePageComponents/Features";
 import Foot from "../../Components/HomePageComponents/Foot";
 import HomeCourse from "../../Components/HomePageComponents/HomeCourse";
 import Level from "../../Components/HomePageComponents/StartingLevel";
 import Navbar from "../../Components/Navigators/Navbar";
+import Logo from "../../Assets/images/Logo.png";
+import ChatWidget from "../../Components/ChatComponent/Chat";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -23,13 +26,29 @@ const HomePage = () => {
     }, 1000);
   };
 
+  const navigateWithLoading = (path) => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      navigate(path);
+    }, 1000);
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-900">
       {/* Content container */}
       <div className="relative">
         {/* Navbar */}
-        <div className="fixed w-full top-0 z-50 bg-gray-900/80 backdrop-blur-sm border-b border-blue-500/10">
-          <Navbar />
+        <div>
+          <Navbar navigateWithLoading={navigateWithLoading} />
         </div>
 
         {/* Header */}
@@ -150,12 +169,32 @@ const HomePage = () => {
         </footer>
       </div>
 
-      {/* Loading Overlay */}
+      {/* Full-Screen Loading Overlay */}
       {isLoading && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="w-16 h-16 border-t-4 border-blue-500 border-solid rounded-full animate-spin"></div>
         </div>
       )}
+
+      {/* Add the floating animation */}
+      <style>{`
+        @keyframes float {
+          0% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-20px);
+          }
+          100% {
+            transform: translateY(0px);
+          }
+        }
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+      `}</style>
+
+      <ChatWidget />
     </div>
   );
 };
