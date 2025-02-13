@@ -1,11 +1,13 @@
-import { useState } from "react";
+/* eslint-disable react/no-unknown-property */
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Features from "../../Components/HomePageComponents/Features";
 import Foot from "../../Components/HomePageComponents/Foot";
 import HomeCourse from "../../Components/HomePageComponents/HomeCourse";
 import Level from "../../Components/HomePageComponents/StartingLevel";
 import Navbar from "../../Components/Navigators/Navbar";
-import Logo from "../../Assets/images/Logo.png"
+import Logo from "../../Assets/images/Logo.png";
+import ChatWidget from "../../Components/ChatComponent/Chat";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -24,13 +26,29 @@ const HomePage = () => {
     }, 1000);
   };
 
+  const navigateWithLoading = (path) => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      navigate(path);
+    }, 1000);
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-900">
       {/* Content container */}
       <div className="relative">
         {/* Navbar */}
         <div>
-          <Navbar />
+          <Navbar navigateWithLoading={navigateWithLoading} />
         </div>
 
         {/* Header */}
@@ -68,9 +86,9 @@ const HomePage = () => {
             <div className="absolute w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
             <div className="absolute w-64 h-64 bg-blue-400/5 rounded-full blur-2xl"></div>
             <div className="relative w-96 h-96 animate-float">
-              <img 
+              <img
                 src={Logo}
-                alt="Logo" 
+                alt="Logo"
                 className="w-full h-full object-contain filter drop-shadow-[0_0_30px_rgba(59,130,246,0.3)]"
               />
             </div>
@@ -151,24 +169,32 @@ const HomePage = () => {
         </footer>
       </div>
 
-      {/* Loading Overlay */}
+      {/* Full-Screen Loading Overlay */}
       {isLoading && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="w-16 h-16 border-t-4 border-blue-500 border-solid rounded-full animate-spin"></div>
         </div>
       )}
 
       {/* Add the floating animation */}
-      <style jsx>{`
+      <style>{`
         @keyframes float {
-          0% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
-          100% { transform: translateY(0px); }
+          0% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-20px);
+          }
+          100% {
+            transform: translateY(0px);
+          }
         }
         .animate-float {
           animation: float 6s ease-in-out infinite;
         }
       `}</style>
+
+      <ChatWidget />
     </div>
   );
 };

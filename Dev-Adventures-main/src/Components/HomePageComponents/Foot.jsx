@@ -1,5 +1,4 @@
-import React from 'react';
-import { Mail, Facebook, Twitter, Instagram, Github } from 'lucide-react';
+import { Mail, Facebook, Twitter, Instagram, Github } from "lucide-react";
 
 const Foot = () => {
   return (
@@ -8,12 +7,12 @@ const Foot = () => {
         {/* Contact Section */}
         <div className="flex flex-col space-y-4 mb-8 md:mb-0">
           <h2 className="text-xl font-bold mb-2">Contact Us</h2>
-          <a 
-            href="mailto:DevAdventures@gmail.com" 
+          <a
+            href="mailto:DevAdventures01@gmail.com"
             className="flex items-center hover:text-blue-400 transition-colors"
           >
             <Mail className="w-4 h-4 mr-2" />
-            DevAdventures@gmail.com
+            DevAdventures01@gmail.com
           </a>
           <div className="flex space-x-4 mt-4">
             <a href="#" className="hover:text-blue-400 transition-colors">
@@ -36,28 +35,52 @@ const Foot = () => {
           {/* About Us Section */}
           <div className="flex flex-col space-y-3">
             <h2 className="text-xl font-bold mb-2">About us</h2>
-            <a href="#" className="hover:text-blue-400 transition-colors">History</a>
-            <a href="#" className="hover:text-blue-400 transition-colors">Team Members</a>
-            <a href="#" className="hover:text-blue-400 transition-colors">Feedback</a>
-            <a href="#" className="hover:text-blue-400 transition-colors">Careers</a>
+            <a href="#" className="hover:text-blue-400 transition-colors">
+              History
+            </a>
+            <a href="#" className="hover:text-blue-400 transition-colors">
+              Team Members
+            </a>
+            <a href="#" className="hover:text-blue-400 transition-colors">
+              Feedback
+            </a>
+            <a href="#" className="hover:text-blue-400 transition-colors">
+              Careers
+            </a>
           </div>
 
           {/* Tutorials Section */}
           <div className="flex flex-col space-y-3">
             <h2 className="text-xl font-bold mb-2">Tutorials</h2>
-            <a href="#" className="hover:text-blue-400 transition-colors">C++ Basics</a>
-            <a href="#" className="hover:text-blue-400 transition-colors">Python Basics</a>
-            <a href="#" className="hover:text-blue-400 transition-colors">Algorithms & Data Structures</a>
-            <a href="#" className="hover:text-blue-400 transition-colors">Web Development</a>
+            <a href="#" className="hover:text-blue-400 transition-colors">
+              C++ Basics
+            </a>
+            <a href="#" className="hover:text-blue-400 transition-colors">
+              Python Basics
+            </a>
+            <a href="#" className="hover:text-blue-400 transition-colors">
+              Algorithms & Data Structures
+            </a>
+            <a href="#" className="hover:text-blue-400 transition-colors">
+              Web Development
+            </a>
           </div>
 
           {/* Legal Section */}
           <div className="flex flex-col space-y-3">
             <h2 className="text-xl font-bold mb-2">Legal</h2>
-            <a href="#" className="hover:text-blue-400 transition-colors">Sharing</a>
-            <a href="#" className="hover:text-blue-400 transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-blue-400 transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-blue-400 transition-colors">Cookie Policy</a>
+            <a href="#" className="hover:text-blue-400 transition-colors">
+              Sharing
+            </a>
+            <a href="#" className="hover:text-blue-400 transition-colors">
+              Privacy Policy
+            </a>
+            <a href="#" className="hover:text-blue-400 transition-colors">
+              Terms of Service
+            </a>
+            <a href="#" className="hover:text-blue-400 transition-colors">
+              Cookie Policy
+            </a>
           </div>
         </div>
       </div>

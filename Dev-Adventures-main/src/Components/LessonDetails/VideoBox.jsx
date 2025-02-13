@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 export const VideoBox = ({ youtubeUrl }) => {
   if (!youtubeUrl) return null;
   const videoId =

@@ -1,4 +1,3 @@
-// src/Validators/PasswordValidator/PasswordValidator.js
 
 export class PasswordValidator {
     static RULES = {
