@@ -1,52 +1,91 @@
-import { useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import axios from "axios";
 import CartItem from "../../Components/CartComponents/CartItem";
 import Navbar from "../../Components/Navigators/Navbar";
 import CheckoutSummary from "../../Components/CartComponents/CheckoutSummary";
 
 const CartPage = () => {
-  const [courses, setCourses] = useState([
-    {
-      id: 1,
-      title: "Complete PHP from Scratch for Beginners",
-      instructor: "Srini Vanamala",
-      rating: 4.3,
-      reviews: 604,
-      totalHours: 17.5,
-      lectures: 202,
-      level: "Beginner",
-      price: 13.99,
-      originalPrice: 64.99,
-    },
-  ]);
-  const [coupon, setCoupon] = useState("ST5MT020225AROW");
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const handleRemove = (id) => {
-    setCourses(courses.filter((course) => course.id !== id));
-  };
+  const fetchCartItems = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        setError("Unauthorized: Please log in.");
+        setLoading(false);
+        return;
+      }
 
-  const handleApplyCoupon = () => {
-    alert("Coupon applied!");
-  };
+      const response = await axios.get("http://localhost:5101/api/Cart", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setCourses(response.data);
+    } catch (err) {
+      setError("Failed to load cart items.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCartItems();
+  }, [fetchCartItems]);
+
+  const handleRemove = useCallback(async (id) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      await axios.delete(`http://localhost:5101/api/Cart/course/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setCourses((prevCourses) =>
+        prevCourses.filter((course) => course.id !== id)
+      );
+    } catch (err) {
+      setError("Failed to remove course.");
+    }
+  }, []);
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-gray-800 min-h-screen text-gray-100">
+    <div className="bg-gray-800 min-h-screen text-gray-100">
       <Navbar />
-      <h1 className="text-4xl font-bold mt-8 mb-6">Shopping Cart</h1>
-      <div className="text-lg mb-6">{courses.length} Course in Cart</div>
+      <div className="max-w-6xl mx-auto p-6 pt-20">
+        <h1 className="text-4xl font-bold mb-6">Shopping Cart</h1>
 
-      <div className="grid grid-cols-3 gap-8">
-        <div className="col-span-2">
-          {courses.map((course) => (
-            <CartItem key={course.id} course={course} onRemove={handleRemove} />
-          ))}
-        </div>
-
-        <CheckoutSummary
-          total={courses.reduce((sum, course) => sum + course.price, 0)}
-          coupon={coupon}
-          setCoupon={setCoupon}
-          onApplyCoupon={handleApplyCoupon}
-        />
+        {loading ? (
+          <div className="text-lg text-center">Loading cart...</div>
+        ) : error ? (
+          <div className="text-red-400 text-lg text-center">{error}</div>
+        ) : courses.length === 0 ? (
+          <div className="text-lg text-center">Your cart is empty.</div>
+        ) : (
+          <>
+            <div className="text-lg mb-6">
+              {courses.length} Course(s) in Cart
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="md:col-span-2 space-y-6">
+                {courses.map((course) => (
+                  <CartItem
+                    key={course.id}
+                    course={course}
+                    onRemove={handleRemove}
+                  />
+                ))}
+              </div>
+              <CheckoutSummary
+                total={courses.reduce((sum, course) => sum + course.price, 0)}
+              />
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
