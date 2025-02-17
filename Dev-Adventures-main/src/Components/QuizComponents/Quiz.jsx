@@ -1,32 +1,102 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 const Quiz = ({ lessonId }) => {
-  const [quiz, setQuiz] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
-  const [score, setScore] = useState(null);
-  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  
+  // Get token from localStorage
+  const getAuthToken = () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      // Redirect to login if no token
+      navigate('/login');
+      return null;
+    }
+    return token;
+  };
 
+  // Validate token on component mount
   useEffect(() => {
-    const fetchQuiz = async () => {
-      try {
-        const token = localStorage.getItem("authToken");
-        const response = await axios.get(`http://localhost:5101/api/quiz/lesson/${lessonId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-        setQuiz(response.data);
-      } catch (error) {
-        setError("Failed to load quiz");
-        console.error("Error fetching quiz:", error);
-      }
-    };
+    const token = getAuthToken();
+    if (!token) return;
+  }, []);
 
-    fetchQuiz();
-  }, [lessonId]);
+  // Fetch quiz data
+  const { data: quiz, isError, error, isLoading } = useQuery({
+    queryKey: ['quiz', lessonId],
+    queryFn: async () => {
+      const token = getAuthToken();
+      if (!token) throw new Error('No auth token');
+
+      const response = await fetch(
+        `http://localhost:5101/api/quiz/lesson/${lessonId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      
+      if (response.status === 401) {
+        localStorage.removeItem('authToken'); // Clear invalid token
+        navigate('/login');
+        throw new Error('Please log in again');
+      }
+      
+      if (!response.ok) throw new Error('Failed to fetch quiz');
+      return response.json();
+    },
+  });
+
+  // Submit quiz mutation
+  const submitMutation = useMutation({
+    mutationFn: async () => {
+      const token = getAuthToken();
+      if (!token) throw new Error('No auth token');
+
+      const response = await fetch('http://localhost:5101/api/quiz/submit', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          quizId: quiz.id,
+          answers: answers
+        }),
+      });
+
+      if (response.status === 401) {
+        localStorage.removeItem('authToken');
+        navigate('/login');
+        throw new Error('Please log in again');
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to submit quiz');
+      }
+
+      return response.json();
+    },
+    onError: (error) => {
+      if (error.message.includes('log in')) {
+        navigate('/login');
+      }
+      console.error('Submit error:', error);
+    }
+  });
+
+  if (isLoading) return <div className="text-white">Loading quiz...</div>;
+  if (isError) return <div className="text-red-500">{error.message}</div>;
+  if (!quiz) return <div className="text-white">No quiz found for this lesson.</div>;
+
+  const question = quiz.questions[currentQuestion];
+  const isQuizComplete = Object.keys(answers).length === quiz.questions.length;
 
   const handleAnswer = (questionId, answerId) => {
     setAnswers(prev => ({
@@ -35,45 +105,37 @@ const Quiz = ({ lessonId }) => {
     }));
   };
 
-  const handleSubmit = async () => {
-    try {
-      const token = localStorage.getItem("authToken");
-      const response = await axios.post(
-        'http://localhost:5101/api/quiz/submit',
-        {
-          quizId: quiz.id,
-          answers: answers
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      setScore(response.data);
-    } catch (error) {
-      setError("Failed to submit quiz");
-      console.error("Error submitting quiz:", error);
+  const handleSubmit = () => {
+    if (!isQuizComplete) {
+      alert('Please answer all questions before submitting.');
+      return;
     }
+    submitMutation.mutate();
   };
 
-  if (error) return <div className="text-red-500">{error}</div>;
-  if (!quiz) return null;
-  if (score !== null) {
+  if (submitMutation.isSuccess) {
     return (
       <div className="bg-gray-800 rounded-lg p-6 w-full">
         <h2 className="text-2xl text-white font-bold mb-4">Quiz Complete!</h2>
-        <p className="text-xl text-white">Your score: {score}%</p>
+        <p className="text-xl text-white">Your score: {submitMutation.data}%</p>
+        {submitMutation.data >= 70 ? (
+          <p className="text-green-500 mt-4">Congratulations! You passed the quiz!</p>
+        ) : (
+          <p className="text-yellow-500 mt-4">Keep studying and try again!</p>
+        )}
       </div>
     );
   }
 
-  const question = quiz.questions[currentQuestion];
-
   return (
     <div className="bg-gray-800 rounded-lg p-6 w-full">
-      <h2 className="text-2xl text-white font-bold mb-4">{quiz.title}</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl text-white font-bold">{quiz.title}</h2>
+        <span className="text-gray-400">
+          Question {currentQuestion + 1} of {quiz.questions.length}
+        </span>
+      </div>
+
       <div className="mb-6">
         <p className="text-lg text-white mb-4">{question.text}</p>
         <div className="space-y-2">
@@ -92,30 +154,51 @@ const Quiz = ({ lessonId }) => {
           ))}
         </div>
       </div>
+
       <div className="flex justify-between mt-4">
-        {currentQuestion > 0 && (
-          <button 
-            onClick={() => setCurrentQuestion(curr => curr - 1)}
-            className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition-all"
-          >
-            Previous
-          </button>
-        )}
+        <button 
+          onClick={() => setCurrentQuestion(curr => curr - 1)}
+          className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 
+            transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={currentQuestion === 0}
+        >
+          Previous
+        </button>
+
         {currentQuestion < quiz.questions.length - 1 ? (
           <button 
             onClick={() => setCurrentQuestion(curr => curr + 1)}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-all ml-auto"
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 
+              transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={!answers[question.id]}
           >
             Next
           </button>
         ) : (
           <button 
             onClick={handleSubmit}
-            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-all ml-auto"
+            disabled={!isQuizComplete || submitMutation.isLoading}
+            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 
+              transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Submit Quiz
+            {submitMutation.isLoading ? 'Submitting...' : 'Submit Quiz'}
           </button>
         )}
+      </div>
+
+      <div className="mt-4 flex justify-center">
+        <div className="flex gap-2">
+          {quiz.questions.map((_, index) => (
+            <div
+              key={index}
+              className={`w-2 h-2 rounded-full ${
+                answers[quiz.questions[index].id]
+                  ? 'bg-blue-500'
+                  : 'bg-gray-600'
+              }`}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

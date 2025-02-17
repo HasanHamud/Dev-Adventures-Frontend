@@ -1,12 +1,13 @@
-/* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ShoppingCart } from "lucide-react";
+import axios from "axios";
 
 const Navbar = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [userData, setUserData] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
   const courseData = location.state?.courseData;
@@ -25,6 +26,24 @@ const Navbar = () => {
       });
     }
   }, []);
+
+  useEffect(() => {
+    if (searchQuery.trim() !== "") {
+      axios.get("http://localhost:5101/api/courses/search", {
+        params: { query: searchQuery }
+      })
+      .then((response) => setSearchResults(response.data))
+      .catch((err) => console.error("Error fetching search results:", err));
+    } else {
+      setSearchResults([]);
+    }
+  }, [searchQuery]);
+
+  const handleSearchSelect = (courseId) => {
+    setSearchQuery("");
+    setSearchResults([]);
+    navigate(`/course/${courseId}`);
+  };
 
   const navigateWithLoading = (path) => {
     setIsLoading(true);
@@ -112,7 +131,7 @@ const Navbar = () => {
   const renderSearchBar = () => {
     if (!isCourseDetailsPage && ["/", "/courses"].includes(location.pathname)) {
       return (
-        <div className="flex-1 max-w-xl mx-auto px-8">
+        <div className="flex-1 max-w-xl mx-auto px-8 relative">
           <div className="flex bg-gray-600 rounded-full border border-gray-600">
             <input
               value={searchQuery}
@@ -121,6 +140,20 @@ const Navbar = () => {
               className="w-full bg-transparent px-6 py-2 rounded-full border-none focus:outline-none text-white"
             />
           </div>
+          {searchResults.length > 0 && (
+            <div className="absolute w-full mt-2 bg-gray-800 rounded-lg shadow-lg max-h-96 overflow-y-auto">
+              {searchResults.map((course) => (
+                <div
+                  key={course.id}
+                  onClick={() => handleSearchSelect(course.id)}
+                  className="p-4 hover:bg-gray-700 cursor-pointer border-b border-gray-700"
+                >
+                  <div className="text-white font-medium">{course.title}</div>
+                  <div className="text-gray-400 text-sm">{course.description}</div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       );
     }

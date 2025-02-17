@@ -8,10 +8,47 @@ import Level from "../../Components/HomePageComponents/StartingLevel";
 import Navbar from "../../Components/Navigators/Navbar";
 import Logo from "../../Assets/images/Logo.png";
 import ChatWidget from "../../Components/ChatComponent/Chat";
+import axios from "axios";
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [HomeCourses, setHomeCourses] = useState([]);
+  const token = localStorage.getItem('authToken');
+
+  const fetchHomeLessons = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5101/api/Courses`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const courses = response.data;
+
+      if (courses.length === 0) return; // No courses available
+
+      const selectedCourses = [];
+      const usedIndexes = new Set();
+
+      while (selectedCourses.length < Math.min(3, courses.length)) {
+        const randomIndex = Math.floor(Math.random() * courses.length);
+        if (!usedIndexes.has(randomIndex)) {
+          selectedCourses.push(courses[randomIndex]);
+          usedIndexes.add(randomIndex);
+        }
+      }
+
+      setHomeCourses(selectedCourses);
+    } catch (error) {
+      console.error("Error fetching courses:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchHomeLessons();
+  }, []);
 
   const handleJoinNowClick = () => {
     setIsLoading(true);
@@ -34,24 +71,11 @@ const HomePage = () => {
     }, 1000);
   };
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <div className="min-h-screen bg-gray-900">
-      {/* Content container */}
       <div className="relative">
-        {/* Navbar */}
-        <div>
-          <Navbar navigateWithLoading={navigateWithLoading} />
-        </div>
+        <Navbar navigateWithLoading={navigateWithLoading} />
 
-        {/* Header */}
         <header className="relative flex flex-row items-center justify-between px-12 h-screen overflow-hidden pt-20">
           <div className="w-1/2">
             <div className="flex flex-col items-start justify-start">
@@ -81,7 +105,6 @@ const HomePage = () => {
             </div>
           </div>
 
-          {/* Logo Display with smoother glow */}
           <div className="w-1/2 h-full flex items-center justify-center relative">
             <div className="absolute w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
             <div className="absolute w-64 h-64 bg-blue-400/5 rounded-full blur-2xl"></div>
@@ -95,14 +118,13 @@ const HomePage = () => {
           </div>
         </header>
 
-        {/* Features Section */}
         <div className="min-h-screen relative">
           <div className="relative">
             <Features />
           </div>
         </div>
 
-        {/* Courses Section with distinct background */}
+        {/* Courses Section */}
         <div className="min-h-screen py-20 relative bg-gray-800/50">
           <div className="relative">
             <div className="flex flex-col items-center justify-center gap-6 text-white">
@@ -115,24 +137,29 @@ const HomePage = () => {
                 </h2>
               </div>
               <div className="flex flex-row space-x-20 px-12">
-                <HomeCourse
-                  text="Python Programming Essentials"
-                  text2="A comprehensive introduction to Python, covering syntax, data types, control flow, functions, and basic..."
-                />
-                <HomeCourse
-                  text="Data Structures and Algorithms"
-                  text2="A deep dive into the fundamentals of data structures and algorithms"
-                />
-                <HomeCourse
-                  text="Mastering Javascript"
-                  text2="A step by step guide to mastering javascript from zero to hero"
-                />
-              </div>
+  {HomeCourses.length > 0 ? (
+    HomeCourses.map((course) => {
+      console.log("Course Image URL:", `http://localhost:5101${course.imgURL}`); // Logging the correct image URL
+
+      return (
+        <HomeCourse
+          key={course.id}
+          text={course.title}
+          text2={course.description}
+          imgUrl={`http://localhost:5101${course.imgURL}`} // Correct implementation
+        />
+      );
+    })
+  ) : (
+    <p className="text-blue-200 text-xl">Loading courses...</p>
+  )}
+</div>
+
             </div>
           </div>
         </div>
 
-        {/* Levels Section with distinct background */}
+        {/* Levels Section */}
         <div className="min-h-screen py-20 relative bg-gray-900">
           <div className="relative">
             <div className="text-center mb-12">
@@ -163,35 +190,24 @@ const HomePage = () => {
           </div>
         </div>
 
-        {/* Footer */}
         <footer className="relative bg-black/80 backdrop-blur-sm border-t border-blue-500/10">
           <Foot />
         </footer>
       </div>
 
-      {/* Full-Screen Loading Overlay */}
       {isLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="w-16 h-16 border-t-4 border-blue-500 border-solid rounded-full animate-spin"></div>
         </div>
       )}
 
-      {/* Add the floating animation */}
       <style>{`
         @keyframes float {
-          0% {
-            transform: translateY(0px);
-          }
-          50% {
-            transform: translateY(-20px);
-          }
-          100% {
-            transform: translateY(0px);
-          }
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+          100% { transform: translateY(0px); }
         }
-        .animate-float {
-          animation: float 6s ease-in-out infinite;
-        }
+        .animate-float { animation: float 6s ease-in-out infinite; }
       `}</style>
 
       <ChatWidget />
