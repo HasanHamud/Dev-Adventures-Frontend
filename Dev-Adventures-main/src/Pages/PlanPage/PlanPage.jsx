@@ -1,68 +1,111 @@
-
 import { PlanHeader } from "../../Components/PlansComponents/PlanHeader";
-import { PlanCard } from "../../Components/PlansComponents/PlanCard"  
+import { PlanCard } from "../../Components/PlansComponents/PlanCard";
+import { useState, useEffect } from "react";
+import AddPlanModal from "../../Modals/PlanModals/AddPlanModal";
+import { EditPlanModal } from "../../Modals/PlanModals/EditPlanModal";
+import axios from "axios";
 
- function PlanPage() {
-  const plans = [
-    {
-      level: "Beginner",
-      title: "Programming Fundamentals",
-      description: "Start your programming journey with essential fundamentals and core Java programming concepts.",
-      duration: "3 months",
-      price: 199.99,
-      totalCourses: 3,
-      totalHours: 40,
-      courses: [
-        "Introduction to Computer Science",
-        "Java Programming Basics",
-        "Problem Solving in Programming"
-      ]
-    },
-    {
-      level: "Intermediate",
-      title: "Data Structures & Algorithms",
-      description: "Master the essential computer science concepts with advanced problem-solving techniques.",
-      duration: "4 months",
-      price: 299.99,
-      totalCourses: 4,
-      totalHours: 60,
-      courses: [
-        "Data Structures Fundamentals",
-        "Algorithms Analysis",
-        "Advanced Problem Solving",
-        "Competitive Programming"
-      ]
-    },
-    {
-      level: "Advanced",
-      title: "Full Stack Development",
-      description: "Become a complete developer with our comprehensive full stack development program.",
-      duration: "6 months",
-      price: 499.99,
-      totalCourses: 5,
-      totalHours: 100,
-      courses: [
-        "Frontend Development (React)",
-        "Backend Development (Node.js)",
-        "Database Management",
-        "API Development",
-        "DevOps & Deployment"
-      ]
+function PlanPage() {
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [plans, setPlans] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const BASE_URL = 'http://localhost:5101';
+  const token = localStorage.getItem('authToken');
+
+  const fetchPlans = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/api/Plan`, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      setPlans(response.data);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching plans:', err);
+      setError(err.message);
+      setLoading(false);
     }
-  ]
+  };
+
+  useEffect(() => {
+    fetchPlans();
+  }, [token]);
+
+  const handleEditPlan = (plan) => {
+    setSelectedPlan(plan);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSuccess = async (updatedPlan) => {
+    await fetchPlans(); // Refresh the plans list
+    setIsEditModalOpen(false);
+    setSelectedPlan(null);
+  };
+
+  const handleAddSuccess = async (newPlan) => {
+    await fetchPlans(); // Refresh the plans list
+    setIsAddModalOpen(false);
+  };
+
+  if (loading) return (
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">
+      Loading...
+    </div>
+  );
+
+  if (error) return (
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">
+      Error: {error}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-900">
       <PlanHeader />
       <div className="container mx-auto px-4 py-8">
+        <div className="mb-6">
+          <button 
+            onClick={() => setIsAddModalOpen(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+          >
+            Add New Plan
+          </button>
+        </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {plans.map((plan) => (
-            <PlanCard key={plan.title} plan={plan} />
+          {Array.isArray(plans) && plans.map((plan) => (
+            <PlanCard 
+              key={plan.id}
+              plan={plan}
+              onEdit={() => handleEditPlan(plan)}
+            />
           ))}
         </div>
       </div>
-    </div>
-  )
-}
-export default PlanPage;
 
+      <AddPlanModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSuccess={handleAddSuccess}
+      />
+
+      <EditPlanModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedPlan(null);
+        }}
+        onSuccess={handleEditSuccess}
+        plan={selectedPlan}
+      />
+    </div>
+  );
+}
+
+export default PlanPage;

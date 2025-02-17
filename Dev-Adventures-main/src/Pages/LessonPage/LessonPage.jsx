@@ -81,6 +81,9 @@ export default function LessonPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isAddQuizModalOpen, setIsAddQuizModalOpen] = useState(false);
+  const [isEditQuizModalOpen, setIsEditQuizModalOpen] = useState(false);
+  const [isDeleteQuizModalOpen, setIsDeleteQuizModalOpen] = useState(false);
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [expandedLesson, setExpandedLesson] = useState(null);
 
@@ -136,10 +139,82 @@ export default function LessonPage() {
     setIsDeleteModalOpen(true);
   };
 
+  const handleAddQuiz = (lesson) => {
+    setSelectedLesson(lesson);
+    setIsAddQuizModalOpen(true);
+  };
+
+  const handleEditQuiz = async (lesson) => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      enqueueSnackbar("You are not logged in!", { variant: "error" });
+      return;
+    }
+
+    try {
+      const response = await axios.get(
+        `http://localhost:5101/api/quiz/lesson/${lesson.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      setSelectedLesson(lesson);
+      setSelectedQuiz(response.data);
+      setIsEditQuizModalOpen(true);
+    } catch (error) {
+      if (error.response?.status === 404) {
+        enqueueSnackbar("No quiz found for this lesson", {
+          variant: "warning",
+        });
+      } else {
+        enqueueSnackbar("Error loading quiz", { variant: "error" });
+      }
+    }
+  };
+
+  const handleDeleteQuiz = async (lesson) => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      enqueueSnackbar("You are not logged in!", { variant: "error" });
+      return;
+    }
+
+    try {
+      const response = await axios.get(
+        `http://localhost:5101/api/quiz/lesson/${lesson.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      setSelectedLesson(lesson);
+      setSelectedQuiz(response.data);
+      setIsDeleteQuizModalOpen(true);
+    } catch (error) {
+      if (error.response?.status === 404) {
+        enqueueSnackbar("No quiz found for this lesson", {
+          variant: "warning",
+        });
+      } else {
+        enqueueSnackbar("Error loading quiz", { variant: "error" });
+      }
+    }
+  };
+
   const handleCloseModals = () => {
     setIsAddModalOpen(false);
     setIsEditModalOpen(false);
     setIsDeleteModalOpen(false);
+    setIsAddQuizModalOpen(false);
+    setIsEditQuizModalOpen(false);
+    setIsDeleteQuizModalOpen(false);
     setSelectedLesson(null);
     fetchAllLessons(courseId);
   };
@@ -486,6 +561,33 @@ export default function LessonPage() {
           lessonId={selectedLesson?.id}
           lessonTitle={selectedLesson?.title}
           onDelete={handleCloseModals}
+        />
+      )}
+
+      {isAddQuizModalOpen && (
+        <AddQuizModal
+          lessonId={selectedLesson?.id}
+          isOpen={isAddQuizModalOpen}
+          onClose={handleCloseModals}
+        />
+      )}
+
+      {isEditQuizModalOpen && selectedQuiz && (
+        <EditQuizModal
+          lessonId={selectedLesson?.id}
+          quizId={selectedQuiz?.id}
+          isOpen={isEditQuizModalOpen}
+          onClose={handleCloseModals}
+        />
+      )}
+
+      {isDeleteQuizModalOpen && selectedQuiz && (
+        <DeleteQuizModal
+          quizId={selectedQuiz?.id}
+          lessonId={selectedLesson?.id}
+          quizTitle={selectedQuiz?.title}
+          isOpen={isDeleteQuizModalOpen}
+          onClose={handleCloseModals}
         />
       )}
     </div>
