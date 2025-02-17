@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import { useState } from "react";
@@ -20,6 +21,8 @@ export const AddLessonModal = ({ courseId, isOpen, onClose }) => {
 
   const BASE_URL = "http://localhost:5101";
 
+  console.log("Course ID:", courseId);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -32,7 +35,6 @@ export const AddLessonModal = ({ courseId, isOpen, onClose }) => {
     e.preventDefault();
     const token = localStorage.getItem("authToken");
     try {
-      // Step 1: Create the lesson
       const lessonResponse = await axios.post(
         `${BASE_URL}/api/Lesson/courses/${courseId}`,
         {
@@ -40,7 +42,10 @@ export const AddLessonModal = ({ courseId, isOpen, onClose }) => {
           description: formData.description,
         },
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
       );
 
@@ -54,7 +59,7 @@ export const AddLessonModal = ({ courseId, isOpen, onClose }) => {
     }
   };
 
-  if (!isOpen) return null; // Only render if isOpen is true
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">

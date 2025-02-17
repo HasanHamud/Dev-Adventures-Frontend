@@ -1,4 +1,5 @@
-// EditVideoModal.jsx
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
 import { useSnackbar } from "notistack";
 import axios from "axios";
@@ -12,7 +13,14 @@ const FormField = ({ label, children }) => (
   </div>
 );
 
-export default function EditVideoModal({ courseId, lessonId, videoId, isOpen, onClose, onUpdate }) {
+export default function EditVideoModal({
+  courseId,
+  lessonId,
+  videoId,
+  isOpen,
+  onClose,
+  onUpdate,
+}) {
   const { enqueueSnackbar } = useSnackbar();
   const [formData, setFormData] = useState({ Title: "", VideoURL: "" });
   const [isLoading, setIsLoading] = useState(true);
@@ -35,11 +43,11 @@ export default function EditVideoModal({ courseId, lessonId, videoId, isOpen, on
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      const video = response.data.find(v => v.id === videoId);
+      const video = response.data.find((v) => v.id === videoId);
       if (video) {
         setFormData({
           Title: video.title,
-          VideoURL: video.videoURL
+          VideoURL: video.videoURL,
         });
       } else {
         throw new Error("Video not found");
@@ -73,10 +81,10 @@ export default function EditVideoModal({ courseId, lessonId, videoId, isOpen, on
         `${BASE_URL}/api/Lesson/${courseId}/${lessonId}/${videoId}`,
         {
           Title: formData.Title,
-          VideoURL: formData.VideoURL
+          VideoURL: formData.VideoURL,
         },
         {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       console.log("Update successful:", response.data);

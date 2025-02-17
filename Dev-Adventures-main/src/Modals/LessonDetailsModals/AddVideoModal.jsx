@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import { useState } from "react";
@@ -11,9 +13,9 @@ const FormField = ({ label, children }) => (
   </div>
 );
 
-export default function AddVideoModal({ lessonID, isOpen, onClose }) {
+export default function AddVideoModal({ courseId, lessonID, isOpen, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
-  const [formData, setFormData] = useState({ Title: "", VideoURL: "" }); // Match backend DTO properties
+  const [formData, setFormData] = useState({ Title: "", VideoURL: "" });
   const BASE_URL = "http://localhost:5101";
 
   const handleChange = (e) => {
@@ -26,10 +28,10 @@ export default function AddVideoModal({ lessonID, isOpen, onClose }) {
     const token = localStorage.getItem("authToken");
     try {
       const videoResponse = await axios.post(
-        `${BASE_URL}/api/Lesson/1/${lessonID}`,
+        `${BASE_URL}/api/Lesson/${courseId}/${lessonID}`,
         {
-          Title: formData.Title,      // Match backend DTO properties
-          VideoURL: formData.VideoURL
+          Title: formData.Title,
+          VideoURL: formData.VideoURL,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -37,12 +39,11 @@ export default function AddVideoModal({ lessonID, isOpen, onClose }) {
       );
       console.log("Video Added!");
       enqueueSnackbar("Video added to the lesson", { variant: "success" });
-      onClose(); 
+      onClose();
 
       setTimeout(() => {
         window.location.reload();
       }, 1500);
-      
     } catch (error) {
       console.error("Error details:", error);
       enqueueSnackbar("Error Adding video", { variant: "error" });
@@ -59,8 +60,8 @@ export default function AddVideoModal({ lessonID, isOpen, onClose }) {
           <FormField label="Video Title">
             <input
               type="text"
-              name="Title"           // Match state property name
-              value={formData.Title} // Match state property name
+              name="Title"
+              value={formData.Title}
               onChange={handleChange}
               className="w-full p-2 bg-gray-700 text-white rounded"
               placeholder="Enter Video title"
@@ -68,9 +69,9 @@ export default function AddVideoModal({ lessonID, isOpen, onClose }) {
           </FormField>
           <FormField label="Video URL">
             <input
-              type="text"            // Added type="text"
-              name="VideoURL"        // Match state property name
-              value={formData.VideoURL} // Match state property name
+              type="text"
+              name="VideoURL"
+              value={formData.VideoURL}
               onChange={handleChange}
               className="w-full p-2 bg-gray-700 text-white rounded"
               placeholder="Enter Video URL"

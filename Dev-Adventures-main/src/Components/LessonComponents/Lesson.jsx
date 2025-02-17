@@ -14,7 +14,9 @@ export default function Lesson({ number, status = "locked", lesson }) {
     console.log("Lesson being passed:", lesson);
     setTimeout(() => {
       setIsLoading(false);
-      navigate("/lesson/lessondetails", { state: { lessonData: lesson } });
+      navigate(`/courses/${lesson.courseId}/lessons/${lesson.id}`, {
+        state: { lessonData: lesson },
+      });
     }, 1000);
   };
   const getStatusIcon = () => {

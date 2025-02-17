@@ -1,8 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import axios from "axios";
 import { format } from "date-fns";
 import { jwtDecode } from "jwt-decode";
-import { Pencil, Plus, ShoppingCart, Trash2 } from "lucide-react";
+import { BookOpen, Pencil, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { enqueueSnackbar } from "notistack";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -23,6 +24,9 @@ export const CourseSidebar = () => {
   const [editedRequirement, setEditedRequirement] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isCartModalOpen, setIsCartModalOpen] = useState(false);
+  const [isEnrolled, setIsEnrolled] = useState(false);
+
+  const displayPrice = courseData?.price ?? 99.99;
 
   const [deleteModal, setDeleteModal] = useState({
     isOpen: false,
@@ -214,13 +218,31 @@ export const CourseSidebar = () => {
     }
   };
 
-  const handleViewCart = () => {
-    navigate("/cart");
+  const handleGoToLessons = () => {
+    navigate(`/courses/${courseData.id}/lessons`);
   };
 
-  const handleCloseCartModal = () => {
-    setIsCartModalOpen(false);
+  const checkEnrollment = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5101/api/Cart/isEnrolled/${courseData.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        }
+      );
+      setIsEnrolled(response.data.isEnrolled);
+    } catch (error) {
+      console.error("Error checking enrollment status:", error);
+    }
   };
+
+  useEffect(() => {
+    if (courseData?.id) {
+      checkEnrollment();
+    }
+  }, [courseData]);
 
   if (error) return <div>Failed to load requirements.</div>;
   if (!requirements) return <div>Loading...</div>;
@@ -242,8 +264,8 @@ export const CourseSidebar = () => {
 
       <CartModal
         isOpen={isCartModalOpen}
-        onClose={handleCloseCartModal}
-        onViewCart={handleViewCart}
+        onClose={() => setIsCartModalOpen(false)}
+        onViewCart={() => navigate("/cart")}
       />
 
       <div className="bg-gray-800 p-6 rounded-lg">
@@ -368,14 +390,27 @@ export const CourseSidebar = () => {
           )}
         </div>
 
-        {/* Enroll Button */}
-        <button
-          onClick={handleEnrollNow}
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg flex items-center justify-center"
-        >
-          <ShoppingCart className="mr-2 h-5 w-5" />
-          Enroll Now for ${courseData?.price || "99.99"}
-        </button>
+        <div>
+          {isEnrolled ? (
+            <button
+              onClick={handleGoToLessons}
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg flex items-center justify-center"
+            >
+              <BookOpen className="mr-2 h-5 w-5" />
+              Go to Lessons
+            </button>
+          ) : (
+            <button
+              onClick={handleEnrollNow}
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg flex items-center justify-center"
+            >
+              <ShoppingCart className="mr-2 h-5 w-5" />
+              {displayPrice === 0
+                ? "Enroll Now for Free"
+                : `Enroll Now for $${displayPrice}`}
+            </button>
+          )}
+        </div>
       </div>
     </>
   );

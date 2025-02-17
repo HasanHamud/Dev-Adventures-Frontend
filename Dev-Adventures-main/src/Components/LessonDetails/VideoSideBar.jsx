@@ -28,7 +28,7 @@ export default function VideoSideBar({
   };
 
   const handleOpenEditModal = (video, e) => {
-    e.stopPropagation(); // Prevent video selection when clicking edit
+    e.stopPropagation();
     setSelectedVideo(video);
     setIsEditModalOpen(true);
   };
@@ -39,7 +39,7 @@ export default function VideoSideBar({
   };
 
   const handleOpenDeleteModal = (video, e) => {
-    e.stopPropagation(); // Prevent video selection when clicking delete
+    e.stopPropagation();
     setSelectedVideo(video);
     setIsDeleteModalOpen(true);
   };

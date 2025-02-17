@@ -1,8 +1,8 @@
-import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
+import { useCallback, useEffect, useState } from "react";
 import CartItem from "../../Components/CartComponents/CartItem";
-import Navbar from "../../Components/Navigators/Navbar";
 import CheckoutSummary from "../../Components/CartComponents/CheckoutSummary";
+import Navbar from "../../Components/Navigators/Navbar";
 
 const CartPage = () => {
   const [courses, setCourses] = useState([]);
@@ -53,6 +53,18 @@ const CartPage = () => {
     }
   }, []);
 
+  const handleCouponApplied = (couponCourseId) => {
+    if (couponCourseId === null) {
+      setCourses([]);
+    } else {
+      setCourses((prevCourses) =>
+        prevCourses.map((course) =>
+          course.id === couponCourseId ? { ...course, price: 0 } : course
+        )
+      );
+    }
+  };
+
   return (
     <div className="bg-gray-800 min-h-screen text-gray-100">
       <Navbar />
@@ -82,6 +94,8 @@ const CartPage = () => {
               </div>
               <CheckoutSummary
                 total={courses.reduce((sum, course) => sum + course.price, 0)}
+                courseId={courses.length > 0 ? courses[0].id : null}
+                onCouponApplied={handleCouponApplied}
               />
             </div>
           </>

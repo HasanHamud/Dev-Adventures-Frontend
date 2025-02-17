@@ -89,7 +89,7 @@ const Foot = () => {
       <div className="w-full border-t border-gray-700 mt-6">
         <div className="max-w-7xl mx-auto px-8 py-1">
           <p className="text-sm text-gray-400 text-center">
-            © {new Date().getFullYear()} DevAdventures. All rights reserved.
+            © {new Date().getFullYear()} DeVAdventures. All rights reserved.
           </p>
         </div>
       </div>

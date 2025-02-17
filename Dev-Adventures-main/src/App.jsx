@@ -15,6 +15,7 @@ import LoginPage from "./Pages/LoginPage/LoginPage";
 import PlanPage from "./Pages/PlanPage/PlanPage";
 import ProfilePage from "./Pages/ProfilePage/ProfilePage";
 import RegisterPage from "./Pages/RegisterPage/RegisterPage";
+import MyCoursePage from "./Pages/MyCoursesPage/MyCoursePage";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -43,12 +44,22 @@ function App() {
               <Route path="plans" element={<PlanPage />} />
               <Route path="courses/details" element={<CourseDetailsPage />} />
               <Route path="cart" element={<CartPage />} />
-              <Route path="lesson" element={<LessonPage />} />
-              <Route path="about" element={<About />} />
               <Route
-                path="lesson/lessondetails"
+                path="/courses/:courseId"
+                element={<CourseDetailsPage />}
+              />
+
+              <Route
+                path="/courses/:courseId/lessons"
+                element={<LessonPage />}
+              />
+
+              <Route
+                path="/courses/:courseId/lessons/:lessonId"
                 element={<LessonDetailsPage />}
               />
+              <Route path="about" element={<About />} />
+              <Route path="mycourses" element={<MyCoursePage />} />
             </Routes>
           </BrowserRouter>
         </SnackbarProvider>

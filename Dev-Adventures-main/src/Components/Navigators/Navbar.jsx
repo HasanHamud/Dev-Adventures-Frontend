@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
-import { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 import { ShoppingCart } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -12,7 +12,6 @@ const Navbar = () => {
   const courseData = location.state?.courseData;
 
   const isCourseDetailsPage = location.pathname.startsWith("/course/");
-  const isHomePage = location.pathname === "/";
   const isProfilePage = location.pathname === "/profile";
 
   useEffect(() => {

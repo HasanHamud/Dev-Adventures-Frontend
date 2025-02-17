@@ -56,14 +56,11 @@ const HomePage = () => {
           <div className="w-1/2">
             <div className="flex flex-col items-start justify-start">
               <h1 className="text-5xl mb-4 font-bold text-white bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-200">
-                Learn, Code, Connect
+                DeV Adventures
               </h1>
               <div className="flex flex-col items-start justify-start mb-6">
                 <p className="text-blue-100 text-2xl">
-                  We Connect Students And Instructors
-                </p>
-                <p className="text-blue-100 text-2xl mb-6">
-                  To Bring Software Innovation
+                  Explore( ).Learn( ).Code( );
                 </p>
               </div>
 
