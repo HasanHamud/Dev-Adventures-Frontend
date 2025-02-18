@@ -16,13 +16,16 @@ export const CartModal = ({ isOpen, onClose, onViewCart }) => {
       try {
         const token = localStorage.getItem("authToken");
 
-        // Fetch cart items
         const itemsResponse = await axios.get(
           "http://localhost:5101/api/Cart",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
+        const courses =
+          itemsResponse.data && Array.isArray(itemsResponse.data.courses)
+            ? itemsResponse.data.courses
+            : [];
 
         const priceResponse = await axios.get(
           "http://localhost:5101/api/Cart/price",
@@ -31,7 +34,7 @@ export const CartModal = ({ isOpen, onClose, onViewCart }) => {
           }
         );
 
-        setCartItems(itemsResponse.data);
+        setCartItems(courses);
         setTotalPrice(priceResponse.data);
       } catch (error) {
         console.error("Error fetching cart items:", error);
@@ -52,10 +55,13 @@ export const CartModal = ({ isOpen, onClose, onViewCart }) => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // Refresh cart items
       const itemsResponse = await axios.get("http://localhost:5101/api/Cart", {
         headers: { Authorization: `Bearer ${token}` },
       });
+      const courses =
+        itemsResponse.data && Array.isArray(itemsResponse.data.courses)
+          ? itemsResponse.data.courses
+          : [];
       const priceResponse = await axios.get(
         "http://localhost:5101/api/Cart/price",
         {
@@ -63,7 +69,7 @@ export const CartModal = ({ isOpen, onClose, onViewCart }) => {
         }
       );
 
-      setCartItems(itemsResponse.data);
+      setCartItems(courses);
       setTotalPrice(priceResponse.data);
     } catch (error) {
       console.error("Error removing course:", error);

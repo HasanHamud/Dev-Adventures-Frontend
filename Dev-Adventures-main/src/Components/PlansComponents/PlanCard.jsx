@@ -1,13 +1,36 @@
-import { useState } from 'react';
-import { ChevronRight, CheckCircle, BookOpen, Edit2, Trash2 } from 'lucide-react';
+import { useState, useCallback, useEffect } from 'react';
+import { ChevronRight, CheckCircle, BookOpen, Edit2, Trash2, ShoppingCart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { EditPlanModal } from '../../Modals/PlanModals/EditPlanModal';
 import DeletePlanModal from '../../Modals/PlanModals/DeletePlanModal';
-
+import { useSnackbar } from 'notistack';
+import { jwtDecode } from 'jwt-decode';
 export function PlanCard({ plan, onPlanUpdate, onPlanDelete }) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [error, setError] = useState('');
+  const { enqueueSnackbar } = useSnackbar();
+  const [isAdmin, setIsAdmin] = useState(false); 
+
+  useEffect(() => {
+    // Check if the user has an admin role
+    const checkIfAdmin = () => {
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        try {
+          const decodedToken = jwtDecode(token);
+          const roles = decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+          const userIsAdmin = Array.isArray(roles) ? roles.includes("Admin") : roles === "Admin";
+          setIsAdmin(userIsAdmin);
+        } catch (error) {
+          console.error("Error decoding token:", error);
+        }
+      }
+    };
+    checkIfAdmin();
+  }, []);
+
   if (!plan) {
     return <div>Loading...</div>;
   }
@@ -45,12 +68,48 @@ export function PlanCard({ plan, onPlanUpdate, onPlanDelete }) {
     setIsEditModalOpen(false);
   };
 
-  const handleDeleteSuccess = (DeletedPlan) => {
+  const handleDeleteSuccess = (deletedPlan) => {
     if (onPlanDelete) {
-      onPlanUpdate(DeletedPlan);
+      onPlanDelete(deletedPlan);
     }
     setIsDeleteModalOpen(false);
   };
+
+  const handleAddToCart = useCallback(async () => {
+    try {
+      setIsAddingToCart(true);
+      setError('');
+      
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        setError('Please log in to add to cart');
+        enqueueSnackbar('Please log in to add to cart', { variant: 'error' });
+        return;
+      }
+
+      const response = await fetch(`http://localhost:5101/api/Cart/Plan/${plan.id}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Failed to add plan to cart');
+      }
+
+      enqueueSnackbar('Plan added to cart successfully!', { variant: 'success' });
+      window.location.reload(); 
+    } catch (err) {
+      setError(err.message || 'Failed to add plan to cart');
+      enqueueSnackbar(err.message || 'Failed to add plan to cart', { variant: 'error' });
+      console.error('Add to cart error:', err);
+    } finally {
+      setIsAddingToCart(false);
+    }
+  }, [plan.id, enqueueSnackbar]);
 
   return (
     <>
@@ -61,26 +120,26 @@ export function PlanCard({ plan, onPlanUpdate, onPlanDelete }) {
             <div className={`${getLevelStyle(plan.level)} px-2.5 py-0.5 rounded-full text-xs font-medium`}>
               {getLevelString(plan.level)}
             </div>
-            <div>
-            <button
-              onClick={() => setIsEditModalOpen(true)}
-              className="p-1 rounded-full transition-colors"
-              title="Edit Plan"
-            >
-              <Edit2 className="h-4 w-4 text-gray-400 hover:text-blue-500" />
-            </button>
+            {/* Conditionally render Edit and Delete buttons based on isAdmin */}
+            {isAdmin && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setIsEditModalOpen(true)}
+                  className="p-1 rounded-full transition-colors"
+                  title="Edit Plan"
+                >
+                  <Edit2 className="h-4 w-4 text-gray-400 hover:text-blue-500" />
+                </button>
 
-            <button
-              onClick={() => setIsDeleteModalOpen(true)}
-              className="p-1 rounded-full transition-colors"
-              title="Edit Plan"
-            >
-              <Trash2 className="h-4 w-4 text-gray-400 hover:text-red-500" />
-            </button>
-
-
-            </div>
-           
+                <button
+                  onClick={() => setIsDeleteModalOpen(true)}
+                  className="p-1 rounded-full transition-colors"
+                  title="Delete Plan"
+                >
+                  <Trash2 className="h-4 w-4 text-gray-400 hover:text-red-500" />
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Title and Description */}
@@ -114,23 +173,26 @@ export function PlanCard({ plan, onPlanUpdate, onPlanDelete }) {
                 </span>
               )}
             </div>
-            
-            <div className="flex items-center mt-2 text-gray-400 text-sm">
-              <BookOpen className="w-4 h-4 mr-1" />
-              <span>{plan.courses?.length || 0} courses</span>
-            </div>
+
+            {error && (
+              <div className="text-red-400 text-sm mt-2">
+                {error}
+              </div>
+            )}
           </div>
         </div>
 
-        <Link
-          to={`/plan/${plan.id}`}
-          className="block bg-gray-700 px-5 py-3 text-blue-400 text-sm font-medium hover:bg-gray-600 transition-colors border-t border-gray-700 mt-auto"
-        >
-          <div className="flex items-center justify-between">
-            <span>View Plan Details</span>
-            <ChevronRight className="h-4 w-4" />
-          </div>
-        </Link>
+        {/* Footer Actions */}
+        <div className="mt-auto border-t border-gray-700 bg-gray-700">
+          <button
+            onClick={handleAddToCart}
+            disabled={isAddingToCart}
+            className="w-full px-5 py-3 text-blue-400 text-sm font-medium hover:bg-gray-600 transition-colors flex items-center justify-center gap-2"
+          >
+            <ShoppingCart className="h-4 w-4" />
+            <span>{isAddingToCart ? 'Adding...' : 'Add to Cart'}</span>
+          </button>
+        </div>
       </div>
 
       <EditPlanModal
@@ -140,7 +202,7 @@ export function PlanCard({ plan, onPlanUpdate, onPlanDelete }) {
         plan={plan}
       />
 
-    <DeletePlanModal
+      <DeletePlanModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onSuccess={handleDeleteSuccess}

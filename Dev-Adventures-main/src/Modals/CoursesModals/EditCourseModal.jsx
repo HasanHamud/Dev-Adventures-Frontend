@@ -65,25 +65,35 @@ const EditCourseModal = ({
     e.preventDefault();
     setIsLoading(true);
     const token = localStorage.getItem("authToken");
-
+  
     try {
       const formDataToSubmit = new FormData();
-      formDataToSubmit.append("Title", formData.title);
-      formDataToSubmit.append("Description", formData.description);
-      formDataToSubmit.append("Rating", formData.rating);
-      formDataToSubmit.append("Price", formData.price);
-      formDataToSubmit.append("Status", formData.status);
-      formDataToSubmit.append("Duration", formData.duration);
-      formDataToSubmit.append("Level", formData.level);
-      formDataToSubmit.append("Language", formData.language);
-
+      formDataToSubmit.append("Title", formData.title || "");
+      formDataToSubmit.append("Description", formData.description || "");
+      formDataToSubmit.append("Rating", formData.rating?.toString() || "0");
+      formDataToSubmit.append("Price", formData.price?.toString() || "0");
+      formDataToSubmit.append("Status", formData.status || "");
+      formDataToSubmit.append("Duration", formData.duration?.toString() || "0");
+      formDataToSubmit.append("Level", formData.level || "");
+      formDataToSubmit.append("Language", formData.language || "");
+      
+      // Handle previewURL - only append if it has a value
+      if (formData.previewURL) {
+        formDataToSubmit.append("previewURL", formData.previewURL);
+      }
+  
       // Only append ImgURL if a new image file is selected
       if (imageFile) {
         formDataToSubmit.append("ImgURL", imageFile);
       }
-
+  
+      // Debug log
+      console.log("FormData contents:");
+      for (let pair of formDataToSubmit.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+      }
       const response = await axios.put(
-        `http://localhost:5101/api/Courses/${course.id}`,
+        `${BACKEND_URL}/api/Courses/${course.id}`,
         formDataToSubmit,
         {
           headers: {
@@ -92,7 +102,7 @@ const EditCourseModal = ({
           },
         }
       );
-
+  
       enqueueSnackbar("Course updated successfully!", {
         variant: "success",
         autoHideDuration: 3000,
@@ -103,6 +113,11 @@ const EditCourseModal = ({
       }
     } catch (error) {
       console.error("Full error:", error);
+      if (error.response) {
+        console.error("Response data:", error.response.data);
+        console.error("Response status:", error.response.status);
+      }
+      
       const message =
         error.response?.data?.message ||
         error.message ||
@@ -115,7 +130,6 @@ const EditCourseModal = ({
       setIsLoading(false);
     }
   };
-
   if (!isOpen) return null;
 
   return (
@@ -174,6 +188,19 @@ const EditCourseModal = ({
               placeholder="Enter description"
               disabled={isLoading}
               required
+            />
+          </FormField>
+
+          {/* Added Preview URL field */}
+          <FormField label="YouTube Preview URL">
+            <input
+              type="text"
+              name="previewURL"
+              value={formData.previewURL || ""}
+              onChange={handleChange}
+              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-100 placeholder-gray-400 text-base"
+              placeholder="Enter YouTube URL (e.g., https://www.youtube.com/watch?v=example)"
+              disabled={isLoading}
             />
           </FormField>
 
@@ -316,6 +343,7 @@ EditCourseModal.propTypes = {
     level: PropTypes.string,
     language: PropTypes.string,
     imgURL: PropTypes.string,
+    previewURL: PropTypes.string, // Added previewURL to PropTypes validation
   }),
 };
 

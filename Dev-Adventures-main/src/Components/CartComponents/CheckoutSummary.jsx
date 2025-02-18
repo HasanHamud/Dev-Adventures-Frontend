@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { useState } from "react";
 import { PartyPopper } from "lucide-react";
 
@@ -6,6 +5,8 @@ const CheckoutSummary = ({ total, courseId, onCouponApplied }) => {
   const [showCelebration, setShowCelebration] = useState(false);
   const [error, setError] = useState("");
   const [couponCode, setCouponCode] = useState("");
+  const [checkoutStatus, setCheckoutStatus] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleApplyCoupon = async () => {
     try {
@@ -52,6 +53,8 @@ const CheckoutSummary = ({ total, courseId, onCouponApplied }) => {
   const handleCheckout = async () => {
     try {
       setError("");
+      setIsProcessing(true);
+      setCheckoutStatus(null);
 
       const token = localStorage.getItem("authToken");
 
@@ -78,6 +81,13 @@ const CheckoutSummary = ({ total, courseId, onCouponApplied }) => {
         throw new Error((await response.text()) || "Checkout failed");
       }
 
+      const result = await response.json();
+      
+      setCheckoutStatus({
+        enrolled: result.enrolledCourses,
+        skipped: result.skippedCourses
+      });
+
       setShowCelebration(true);
       setTimeout(() => {
         setShowCelebration(false);
@@ -88,6 +98,8 @@ const CheckoutSummary = ({ total, courseId, onCouponApplied }) => {
     } catch (error) {
       setError(error.message || "An error occurred during checkout");
       console.error("Checkout error:", error);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -105,9 +117,28 @@ const CheckoutSummary = ({ total, courseId, onCouponApplied }) => {
         {total === 0 ? "FREE!" : `$${total.toFixed(2)}`}
       </div>
 
-      {error && <div className="text-red-400 text-sm py-2">{error}</div>}
+      {error && (
+        <div className="bg-red-500 bg-opacity-10 border border-red-500 rounded-lg p-4 text-red-400">
+          <div className="font-semibold">Error</div>
+          <div className="text-sm">{error}</div>
+        </div>
+      )}
 
-      {/* Coupon Input Field */}
+      {checkoutStatus && (
+        <div className="bg-blue-900 border border-blue-700 rounded-lg p-4">
+          <div className="font-semibold">Enrollment Complete</div>
+          <div className="text-sm">
+            Successfully enrolled in {checkoutStatus.enrolled} new course(s)
+            {checkoutStatus.skipped > 0 && (
+              <>
+                <br />
+                Skipped {checkoutStatus.skipped} course(s) you were already enrolled in
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col space-y-2">
         <input
           type="text"
@@ -126,9 +157,15 @@ const CheckoutSummary = ({ total, courseId, onCouponApplied }) => {
 
       <button
         onClick={handleCheckout}
-        className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg text-lg hover:bg-blue-700 transition-colors"
+        disabled={isProcessing}
+        className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg text-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {total === 0 ? "Get Course for Free →" : "Proceed to Checkout →"}
+        {isProcessing 
+          ? "Processing..." 
+          : total === 0 
+            ? "Get Course for Free →" 
+            : "Proceed to Checkout →"
+        }
       </button>
 
       {total > 0 && (

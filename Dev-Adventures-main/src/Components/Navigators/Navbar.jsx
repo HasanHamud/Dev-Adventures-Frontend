@@ -41,9 +41,22 @@ const Navbar = () => {
   }, [searchQuery]);
 
   const handleSearchSelect = (courseId) => {
+    setIsLoading(true);
     setSearchQuery("");
     setSearchResults([]);
-    navigate(`/course/${courseId}`);
+    
+    axios.get(`http://localhost:5101/api/courses/${courseId}`)
+      .then(response => {
+        setIsLoading(false);
+        navigate("/courses/details", { 
+          state: { courseData: response.data } 
+        });
+      })
+      .catch(err => {
+        console.error("Error fetching course details:", err);
+        setIsLoading(false);
+        navigate(`/courses/details`);
+      });
   };
 
   const navigateWithLoading = (path) => {
@@ -76,6 +89,11 @@ const Navbar = () => {
         { label: "Courses", path: "/courses" },
       ],
       "/profile": [
+        { label: "About", path: "/about" },
+        { label: "Services", path: "/services" },
+        { label: "Contact", path: "/contact" },
+      ],
+      "/plans": [
         { label: "About", path: "/about" },
         { label: "Services", path: "/services" },
         { label: "Contact", path: "/contact" },
@@ -129,7 +147,7 @@ const Navbar = () => {
     );
   };
 
-  const renderSearchBar = () => {
+  const renderSearchBar = () =>  {
     if (!isCourseDetailsPage && ["/", "/courses"].includes(location.pathname)) {
       return (
         <div className="flex-1 max-w-xl mx-auto px-8 relative">
