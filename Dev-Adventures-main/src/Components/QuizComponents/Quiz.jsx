@@ -1,113 +1,115 @@
-import { useState, useEffect } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+/* eslint-disable react/prop-types */
+import { useState, useEffect } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 const Quiz = ({ lessonId }) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const navigate = useNavigate();
-  
-  // Get token from localStorage
+
   const getAuthToken = () => {
     const token = localStorage.getItem("authToken");
     if (!token) {
-      // Redirect to login if no token
-      navigate('/login');
+      navigate("/login");
       return null;
     }
     return token;
   };
 
-  // Validate token on component mount
   useEffect(() => {
     const token = getAuthToken();
     if (!token) return;
   }, []);
 
-  // Fetch quiz data
-  const { data: quiz, isError, error, isLoading } = useQuery({
-    queryKey: ['quiz', lessonId],
+  const {
+    data: quiz,
+    isError,
+    error,
+    isLoading,
+  } = useQuery({
+    queryKey: ["quiz", lessonId],
     queryFn: async () => {
       const token = getAuthToken();
-      if (!token) throw new Error('No auth token');
+      if (!token) throw new Error("No auth token");
 
       const response = await fetch(
-        `http://localhost:5101/api/quiz/lesson/${lessonId}`,
+        `http://localhost:5101/api/Quiz/lesson/${lessonId}`,
         {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         }
       );
-      
+
       if (response.status === 401) {
-        localStorage.removeItem('authToken'); // Clear invalid token
-        navigate('/login');
-        throw new Error('Please log in again');
+        localStorage.removeItem("authToken");
+        navigate("/login");
+        throw new Error("Please log in again");
       }
-      
-      if (!response.ok) throw new Error('Failed to fetch quiz');
+
+      if (!response.ok) throw new Error("Failed to fetch quiz");
       return response.json();
     },
   });
 
-  // Submit quiz mutation
   const submitMutation = useMutation({
     mutationFn: async () => {
       const token = getAuthToken();
-      if (!token) throw new Error('No auth token');
+      if (!token) throw new Error("No auth token");
 
-      const response = await fetch('http://localhost:5101/api/quiz/submit', {
-        method: 'POST',
+      const response = await fetch("http://localhost:5101/api/Quiz/submit", {
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           quizId: quiz.id,
-          answers: answers
+          answers: answers,
         }),
       });
 
       if (response.status === 401) {
-        localStorage.removeItem('authToken');
-        navigate('/login');
-        throw new Error('Please log in again');
+        localStorage.removeItem("authToken");
+        navigate("/login");
+        throw new Error("Please log in again");
       }
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to submit quiz');
+        throw new Error(errorData.message || "Failed to submit quiz");
       }
 
       return response.json();
     },
     onError: (error) => {
-      if (error.message.includes('log in')) {
-        navigate('/login');
+      if (error.message.includes("log in")) {
+        navigate("/login");
       }
-      console.error('Submit error:', error);
-    }
+      console.error("Submit error:", error);
+    },
   });
 
   if (isLoading) return <div className="text-white">Loading quiz...</div>;
   if (isError) return <div className="text-red-500">{error.message}</div>;
-  if (!quiz) return <div className="text-white">No quiz found for this lesson.</div>;
+  if (!quiz)
+    return <div className="text-white">No quiz found for this lesson.</div>;
 
   const question = quiz.questions[currentQuestion];
   const isQuizComplete = Object.keys(answers).length === quiz.questions.length;
 
   const handleAnswer = (questionId, answerId) => {
-    setAnswers(prev => ({
+    setAnswers((prev) => ({
       ...prev,
-      [questionId]: answerId
+      [questionId]: answerId,
     }));
   };
 
   const handleSubmit = () => {
     if (!isQuizComplete) {
-      alert('Please answer all questions before submitting.');
+      alert("Please answer all questions before submitting.");
       return;
     }
     submitMutation.mutate();
@@ -119,7 +121,9 @@ const Quiz = ({ lessonId }) => {
         <h2 className="text-2xl text-white font-bold mb-4">Quiz Complete!</h2>
         <p className="text-xl text-white">Your score: {submitMutation.data}%</p>
         {submitMutation.data >= 70 ? (
-          <p className="text-green-500 mt-4">Congratulations! You passed the quiz!</p>
+          <p className="text-green-500 mt-4">
+            Congratulations! You passed the quiz!
+          </p>
         ) : (
           <p className="text-yellow-500 mt-4">Keep studying and try again!</p>
         )}
@@ -143,9 +147,9 @@ const Quiz = ({ lessonId }) => {
             <button
               key={answer.id}
               className={`w-full text-left p-3 rounded-lg transition-all ${
-                answers[question.id] === answer.id 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-700 text-white hover:bg-gray-600'
+                answers[question.id] === answer.id
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-700 text-white hover:bg-gray-600"
               }`}
               onClick={() => handleAnswer(question.id, answer.id)}
             >
@@ -156,8 +160,8 @@ const Quiz = ({ lessonId }) => {
       </div>
 
       <div className="flex justify-between mt-4">
-        <button 
-          onClick={() => setCurrentQuestion(curr => curr - 1)}
+        <button
+          onClick={() => setCurrentQuestion((curr) => curr - 1)}
           className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 
             transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={currentQuestion === 0}
@@ -166,8 +170,8 @@ const Quiz = ({ lessonId }) => {
         </button>
 
         {currentQuestion < quiz.questions.length - 1 ? (
-          <button 
-            onClick={() => setCurrentQuestion(curr => curr + 1)}
+          <button
+            onClick={() => setCurrentQuestion((curr) => curr + 1)}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 
               transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={!answers[question.id]}
@@ -175,13 +179,13 @@ const Quiz = ({ lessonId }) => {
             Next
           </button>
         ) : (
-          <button 
+          <button
             onClick={handleSubmit}
             disabled={!isQuizComplete || submitMutation.isLoading}
             className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 
               transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {submitMutation.isLoading ? 'Submitting...' : 'Submit Quiz'}
+            {submitMutation.isLoading ? "Submitting..." : "Submit Quiz"}
           </button>
         )}
       </div>
@@ -193,8 +197,8 @@ const Quiz = ({ lessonId }) => {
               key={index}
               className={`w-2 h-2 rounded-full ${
                 answers[quiz.questions[index].id]
-                  ? 'bg-blue-500'
-                  : 'bg-gray-600'
+                  ? "bg-blue-500"
+                  : "bg-gray-600"
               }`}
             />
           ))}

@@ -24,8 +24,15 @@ const CartPage = () => {
         },
       });
 
-      setCourses(response.data);
+      console.log("Cart API Response:", response.data);
+      const coursesData = Array.isArray(response.data.courses)
+        ? response.data.courses
+        : [];
+
+      setCourses(coursesData);
     } catch (err) {
+      console.error("Error fetching cart items:", err);
+      setCourses([]);
       setError("Failed to load cart items.");
     } finally {
       setLoading(false);
@@ -39,7 +46,7 @@ const CartPage = () => {
   const handleRemove = useCallback(async (id) => {
     try {
       const token = localStorage.getItem("authToken");
-      await axios.delete(`http://localhost:5101/api/Cart/course/${id}`, {
+      await axios.delete(`http://localhost:5101/api/Cart/Course/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -49,6 +56,7 @@ const CartPage = () => {
         prevCourses.filter((course) => course.id !== id)
       );
     } catch (err) {
+      console.error("Error removing course:", err);
       setError("Failed to remove course.");
     }
   }, []);

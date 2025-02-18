@@ -15,7 +15,7 @@ const FormField = ({ label, children }) => (
 
 export default function AddVideoModal({ courseId, lessonID, isOpen, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
-  const [formData, setFormData] = useState({ Title: "", VideoURL: "" });
+  const [formData, setFormData] = useState({ Title: "", VideoURL: "", length });
   const BASE_URL = "http://localhost:5101";
 
   const handleChange = (e) => {
@@ -77,6 +77,18 @@ export default function AddVideoModal({ courseId, lessonID, isOpen, onClose }) {
               placeholder="Enter Video URL"
             />
           </FormField>
+
+          <FormField label="Duration">
+            <input
+              type="number"
+              name="length"
+              value={formData.length}
+              onChange={handleChange}
+              className="w-full p-2 bg-gray-700 text-white rounded"
+              placeholder="Enter Video Duration"
+            />
+          </FormField>
+
           <div className="flex justify-end mt-4">
             <button
               type="button"
@@ -87,7 +99,7 @@ export default function AddVideoModal({ courseId, lessonID, isOpen, onClose }) {
             </button>
             <button
               type="submit"
-              className="p-2 bg-green-500 text-white rounded"
+              className="p-2 bg-blue-500 hover:bg-blue-600 text-white "
             >
               Save
             </button>

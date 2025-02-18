@@ -12,7 +12,7 @@ const FormField = ({ label, children }) => (
   </div>
 );
 
-export const AddLessonModal = ({ courseId, isOpen, onClose }) => {
+const AddLessonModal = ({ courseId, isOpen, onClose }) => {
   const { enqueueSnackbar } = useSnackbar();
   const [formData, setFormData] = useState({
     title: "",
@@ -20,8 +20,6 @@ export const AddLessonModal = ({ courseId, isOpen, onClose }) => {
   });
 
   const BASE_URL = "http://localhost:5101";
-
-  console.log("Course ID:", courseId);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -99,7 +97,7 @@ export const AddLessonModal = ({ courseId, isOpen, onClose }) => {
             </button>
             <button
               type="submit"
-              className="p-2 bg-green-500 text-white rounded"
+              className="p-2 bg-blue-500 text-white rounded"
             >
               Save
             </button>
@@ -109,3 +107,5 @@ export const AddLessonModal = ({ courseId, isOpen, onClose }) => {
     </div>
   );
 };
+
+export default AddLessonModal;

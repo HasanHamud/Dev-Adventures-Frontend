@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
 import { useSnackbar } from "notistack";
 import axios from "axios";
@@ -11,11 +13,17 @@ const FormField = ({ label, children }) => (
   </div>
 );
 
-export default function EditLessonModal({ courseId, lessonId, isOpen, onClose, onUpdate }) {
+export default function EditLessonModal({
+  courseId,
+  lessonId,
+  isOpen,
+  onClose,
+  onUpdate,
+}) {
   const { enqueueSnackbar } = useSnackbar();
   const [formData, setFormData] = useState({ Title: "", Description: "" });
   const [isLoading, setIsLoading] = useState(true);
-  const BASE_URL = "http://localhost:5101";
+  const BASE_URL = "http://localhost:5101"; // Make sure this is correct and matches your backend URL
 
   useEffect(() => {
     if (isOpen && lessonId) {
@@ -29,14 +37,15 @@ export default function EditLessonModal({ courseId, lessonId, isOpen, onClose, o
 
     try {
       const response = await axios.get(
-        `${BASE_URL}/api/Lesson/courses/${courseId}/lesson/${lessonId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        `${BASE_URL}/api/lesson/courses/${courseId}/lesson/${lessonId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
+
+      console.log("Lesson details response:", response.data);
+
       setFormData({
-        Title: response.data.title,
-        Description: response.data.description
+        Title: response.data.Title || "",
+        Description: response.data.Description || "",
       });
     } catch (error) {
       console.error("Error fetching Lesson details:", error);
@@ -67,12 +76,11 @@ export default function EditLessonModal({ courseId, lessonId, isOpen, onClose, o
         `${BASE_URL}/api/Lesson/${courseId}/${lessonId}`,
         {
           Title: formData.Title,
-          Description: formData.Description
+          Description: formData.Description,
         },
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
+
       console.log("Update successful:", response.data);
       enqueueSnackbar("Lesson Updated Successfully", { variant: "success" });
 

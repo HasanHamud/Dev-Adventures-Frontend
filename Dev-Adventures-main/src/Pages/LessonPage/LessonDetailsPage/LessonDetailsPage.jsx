@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
@@ -9,6 +11,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
+import Navbar from "../../../Components/Navigators/Navbar";
 
 const MAX_CHARS = 150;
 
@@ -49,6 +52,33 @@ export default function LessonDetailsPage() {
     };
     if (courseId) fetchAllLessons();
   }, [courseId, passedLessons]);
+
+  const handleNextVideo = () => {
+    const currentIndex = videos.findIndex((v) => v.id === currentVideo?.id);
+    if (currentIndex !== -1 && currentIndex < videos.length - 1) {
+      setCurrentVideo(videos[currentIndex + 1]);
+    }
+  };
+
+  const handlePreviousVideo = () => {
+    const currentIndex = videos.findIndex((v) => v.id === currentVideo?.id);
+    if (currentIndex > 0) {
+      setCurrentVideo(videos[currentIndex - 1]);
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if (e.key === "ArrowRight") {
+        handleNextVideo();
+      } else if (e.key === "ArrowLeft") {
+        handlePreviousVideo();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [currentVideo, videos]);
 
   useEffect(() => {
     const fetchLessonDetails = async () => {
@@ -105,33 +135,9 @@ export default function LessonDetailsPage() {
     if (lesson && courseId && lessonId) fetchVideos();
   }, [lesson, courseId, lessonId]);
 
-  const handleNextLesson = () => {
-    const currentIndex = allLessons.findIndex((l) => l.id === Number(lessonId));
-    if (currentIndex >= 0 && currentIndex < allLessons.length - 1) {
-      const nextLesson = allLessons[currentIndex + 1];
-      navigate(`/courses/${courseId}/lessons/${nextLesson.id}`, {
-        state: { lessonData: nextLesson, courseData, lessons: allLessons },
-      });
-    }
-  };
-
-  const handlePreviousLesson = () => {
-    const currentIndex = allLessons.findIndex((l) => l.id === Number(lessonId));
-    if (currentIndex > 0) {
-      const previousLesson = allLessons[currentIndex - 1];
-      navigate(`/courses/${courseId}/lessons/${previousLesson.id}`, {
-        state: { lessonData: previousLesson, courseData, lessons: allLessons },
-      });
-    }
-  };
-
   const handleVideoSelect = (video) => {
     setCurrentVideo(video);
   };
-
-  const currentIndex = allLessons.findIndex((l) => l.id === Number(lessonId));
-  const isFirstLesson = currentIndex === 0;
-  const isLastLesson = currentIndex === allLessons.length - 1;
 
   const shouldShowButton = lesson?.description?.length > MAX_CHARS;
   const displayText = isExpanded
@@ -167,7 +173,9 @@ export default function LessonDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-row justify-around">
+    <div className="min-h-screen bg-gray-900 flex flex-row justify-around py-20">
+      <Navbar />
+
       {/* Main lesson content */}
       <div className="p-8 ml-8 flex-1">
         <div className="flex flex-row space-x-3 text-center mb-6">
@@ -214,20 +222,43 @@ export default function LessonDetailsPage() {
       <div className="p-4 mt-2 flex flex-col justify-start">
         <div className="flex justify-end mb-6 space-x-4">
           <button
-            onClick={handlePreviousLesson}
-            disabled={isFirstLesson}
-            className="w-44 flex text-white border-blue-500 border-2 hover:border-blue-400 hover:bg-blue-500/10 transition-all duration-200 py-3 rounded-md items-center group"
+            onClick={handlePreviousVideo}
+            disabled={
+              !currentVideo ||
+              videos.findIndex((v) => v.id === currentVideo.id) === 0
+            }
+            className={`w-44 flex text-white border-blue-500 border-2 
+              hover:border-blue-400 hover:bg-blue-500/10 transition-all duration-200 py-3 rounded-md items-center group 
+              ${
+                !currentVideo ||
+                videos.findIndex((v) => v.id === currentVideo.id) === 0
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
+              }`}
           >
             <ArrowBigLeft className="px-2 text-blue-500 group-hover:-translate-x-1 transition-transform" />
-            <span className="text-lg">Previous Lesson</span>
+            <span className="text-lg">Previous Video</span>
           </button>
+
           <button
-            onClick={handleNextLesson}
-            disabled={isLastLesson}
-            className="w-44 flex text-white border-blue-500 border-2 hover:border-blue-400 hover:bg-blue-500/10 transition-all duration-200 py-3 rounded-md items-center group"
+            onClick={handleNextVideo}
+            disabled={
+              !currentVideo ||
+              videos.findIndex((v) => v.id === currentVideo.id) ===
+                videos.length - 1
+            }
+            className={`w-44 flex text-white border-blue-500 border-2 
+              hover:border-blue-400 hover:bg-blue-500/10 transition-all duration-200 py-3 rounded-md items-center group 
+              ${
+                !currentVideo ||
+                videos.findIndex((v) => v.id === currentVideo.id) ===
+                  videos.length - 1
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
+              }`}
           >
             <ArrowBigRight className="px-2 text-blue-500 group-hover:translate-x-1 transition-transform" />
-            <span className="text-lg">Next Lesson</span>
+            <span className="text-lg">Next Video</span>
           </button>
         </div>
         <VideoSideBar

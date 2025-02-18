@@ -66,7 +66,6 @@ export default function Avatar({ onUpdateSuccess }) {
       setLoading(true);
       setError(null);
 
-      // Preview the image immediately
       const reader = new FileReader();
       reader.onloadend = () => {
         setImage(reader.result);
@@ -101,7 +100,6 @@ export default function Avatar({ onUpdateSuccess }) {
         err.response?.data?.message ||
           "An error occurred while uploading the image."
       );
-      // Refresh image on error
       fetchProfileImage(userId);
     } finally {
       setLoading(false);

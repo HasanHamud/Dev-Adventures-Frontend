@@ -139,7 +139,7 @@ export default function EditVideoModal({
                 </button>
                 <button
                   type="submit"
-                  className="p-2 bg-green-500 text-white rounded hover:bg-green-400"
+                  className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
                   Save Changes
                 </button>
