@@ -1,6 +1,7 @@
+/* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Menu } from "lucide-react";
 import axios from "axios";
 
 const Navbar = () => {
@@ -8,6 +9,7 @@ const Navbar = () => {
   const [userData, setUserData] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const courseData = location.state?.courseData;
@@ -61,6 +63,7 @@ const Navbar = () => {
 
   const navigateWithLoading = (path) => {
     setIsLoading(true);
+    setIsMenuOpen(false);
     setTimeout(() => {
       setIsLoading(false);
       navigate(path);
@@ -69,6 +72,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     setIsLoading(true);
+    setIsMenuOpen(false);
     setTimeout(() => {
       setIsLoading(false);
       localStorage.removeItem("authToken");
@@ -203,25 +207,48 @@ const Navbar = () => {
 
     if (userData) {
       return (
-        <div className="flex items-center">
+        <div className="flex items-center relative">
+          <button
+            onClick={() => navigateWithLoading("/mycourses")}
+            className="px-5 py-2 text-white"
+          >
+            My Courses
+          </button>
           <p className="text-white mx-4">Welcome, {userData.name}!</p>
+
           <button
             onClick={() => navigateWithLoading("/cart")}
             className="hover:text-gray-400 transition-colors"
           >
             <ShoppingCart className="text-white" />
           </button>
+
           {!isProfilePage && (
-            <button
-              onClick={() => navigateWithLoading("/profile")}
-              className="ml-4"
-            >
-              <img
-                className="w-10 h-10 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
-                src="/api/placeholder/40/40"
-                alt="Profile avatar"
-              />
-            </button>
+            <div className="relative ml-4">
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                <Menu className="text-white w-6 h-6" />
+              </button>
+
+              {isMenuOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg py-2 z-50">
+                  <button
+                    onClick={() => navigateWithLoading("/profile")}
+                    className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 transition-colors"
+                  >
+                    Profile
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 transition-colors"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
           )}
         </div>
       );

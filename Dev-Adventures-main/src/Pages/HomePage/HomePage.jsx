@@ -166,19 +166,19 @@ const HomePage = () => {
             </div>
             <div className="flex flex-row justify-center space-x-8 px-12">
               <Level
-                title="Beginner"
+                title="Beginner (WIP)"
                 feature1="Coding Fundamentals"
                 feature2="Getting Familiar with an IDE"
                 feature3="Build your first functional Project"
               />
               <Level
-                title="Intermediate"
+                title="Intermediate (WIP)"
                 feature1="Get familiar with OOP"
                 feature2="Learn what data structures are"
                 feature3="Algorithms and their purpose"
               />
               <Level
-                title="Advanced"
+                title="Advanced (WIP)"
                 feature1="Multiple Paths"
                 feature2="Detailed Instructions"
                 feature3="CV approved functional projects"

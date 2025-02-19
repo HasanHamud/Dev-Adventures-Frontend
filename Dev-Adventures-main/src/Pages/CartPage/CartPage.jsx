@@ -62,6 +62,7 @@ const CartPage = () => {
   const handleRemoveCourse = useCallback(async (id) => {
     try {
       const token = localStorage.getItem("authToken");
+      
       await axios.delete(`http://localhost:5101/api/Cart/Course/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -71,7 +72,8 @@ const CartPage = () => {
         ...prev,
         courses: prev.courses.filter(course => course.id !== id)
       }));
-    } catch (err) {
+    }
+     catch (err) {
       console.error("Error removing course:", err);
       setError("Failed to remove course.");
     }

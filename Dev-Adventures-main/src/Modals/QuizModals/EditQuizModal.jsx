@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import { useState, useEffect } from "react";
@@ -22,10 +24,10 @@ export const EditQuizModal = ({ lessonId, quizId, isOpen, onClose }) => {
           { text: "", isCorrect: false },
           { text: "", isCorrect: false },
           { text: "", isCorrect: false },
-          { text: "", isCorrect: false }
-        ]
-      }
-    ]
+          { text: "", isCorrect: false },
+        ],
+      },
+    ],
   });
 
   const [loading, setLoading] = useState(true);
@@ -47,21 +49,21 @@ export const EditQuizModal = ({ lessonId, quizId, isOpen, onClose }) => {
           {
             headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json"
-            }
+              "Content-Type": "application/json",
+            },
           }
         );
 
         // Transform the received data to match our form structure
         setFormData({
           title: response.data.title,
-          questions: response.data.questions.map(q => ({
+          questions: response.data.questions.map((q) => ({
             text: q.text,
-            answers: q.answers.map(a => ({
+            answers: q.answers.map((a) => ({
               text: a.text,
-              isCorrect: a.isCorrect || false
-            }))
-          }))
+              isCorrect: a.isCorrect || false,
+            })),
+          })),
         });
         setLoading(false);
       } catch (error) {
@@ -75,43 +77,46 @@ export const EditQuizModal = ({ lessonId, quizId, isOpen, onClose }) => {
   }, [lessonId, isOpen]);
 
   const handleTitleChange = (e) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      title: e.target.value
+      title: e.target.value,
     }));
   };
 
   const handleQuestionChange = (questionIndex, e) => {
     const newQuestions = [...formData.questions];
     newQuestions[questionIndex].text = e.target.value;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      questions: newQuestions
+      questions: newQuestions,
     }));
   };
 
   const handleAnswerChange = (questionIndex, answerIndex, e) => {
     const newQuestions = [...formData.questions];
     newQuestions[questionIndex].answers[answerIndex].text = e.target.value;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      questions: newQuestions
+      questions: newQuestions,
     }));
   };
 
   const handleCorrectAnswer = (questionIndex, answerIndex) => {
     const newQuestions = [...formData.questions];
-    newQuestions[questionIndex].answers = newQuestions[questionIndex].answers.map(
-      (answer, idx) => ({ ...answer, isCorrect: idx === answerIndex })
-    );
-    setFormData(prev => ({
+    newQuestions[questionIndex].answers = newQuestions[
+      questionIndex
+    ].answers.map((answer, idx) => ({
+      ...answer,
+      isCorrect: idx === answerIndex,
+    }));
+    setFormData((prev) => ({
       ...prev,
-      questions: newQuestions
+      questions: newQuestions,
     }));
   };
 
   const addQuestion = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       questions: [
         ...prev.questions,
@@ -121,28 +126,30 @@ export const EditQuizModal = ({ lessonId, quizId, isOpen, onClose }) => {
             { text: "", isCorrect: false },
             { text: "", isCorrect: false },
             { text: "", isCorrect: false },
-            { text: "", isCorrect: false }
-          ]
-        }
-      ]
+            { text: "", isCorrect: false },
+          ],
+        },
+      ],
     }));
   };
 
   const removeQuestion = (questionIndex) => {
     if (formData.questions.length > 1) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        questions: prev.questions.filter((_, index) => index !== questionIndex)
+        questions: prev.questions.filter((_, index) => index !== questionIndex),
       }));
     } else {
-      enqueueSnackbar("Quiz must have at least one question", { variant: "warning" });
+      enqueueSnackbar("Quiz must have at least one question", {
+        variant: "warning",
+      });
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("authToken");
-    
+
     if (!token) {
       enqueueSnackbar("You are not logged in!", { variant: "error" });
       return;
@@ -152,13 +159,13 @@ export const EditQuizModal = ({ lessonId, quizId, isOpen, onClose }) => {
       id: quizId,
       title: formData.title,
       lessonId: Number(lessonId),
-      questions: formData.questions.map(question => ({
+      questions: formData.questions.map((question) => ({
         text: question.text,
-        answers: question.answers.map(answer => ({
+        answers: question.answers.map((answer) => ({
           text: answer.text,
-          isCorrect: answer.isCorrect
-        }))
-      }))
+          isCorrect: answer.isCorrect,
+        })),
+      })),
     };
 
     try {
@@ -166,10 +173,10 @@ export const EditQuizModal = ({ lessonId, quizId, isOpen, onClose }) => {
         `${BASE_URL}/api/quiz/${quizId}`,
         transformedData,
         {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
 
@@ -178,7 +185,8 @@ export const EditQuizModal = ({ lessonId, quizId, isOpen, onClose }) => {
     } catch (error) {
       if (error.response) {
         console.error("Error response:", error.response.data);
-        const errorMessage = error.response.data.title || 'Failed to update quiz';
+        const errorMessage =
+          error.response.data.title || "Failed to update quiz";
         enqueueSnackbar(`Error: ${errorMessage}`, { variant: "error" });
       } else {
         console.error("Error:", error);
@@ -188,13 +196,14 @@ export const EditQuizModal = ({ lessonId, quizId, isOpen, onClose }) => {
   };
 
   if (!isOpen) return null;
-  if (loading) return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-gray-800 p-6 rounded-lg">
-        <p className="text-white">Loading quiz data...</p>
+  if (loading)
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="bg-gray-800 p-6 rounded-lg">
+          <p className="text-white">Loading quiz data...</p>
+        </div>
       </div>
-    </div>
-  );
+    );
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -212,9 +221,14 @@ export const EditQuizModal = ({ lessonId, quizId, isOpen, onClose }) => {
           </FormField>
 
           {formData.questions.map((question, questionIndex) => (
-            <div key={questionIndex} className="border border-gray-600 rounded p-4 mb-4">
+            <div
+              key={questionIndex}
+              className="border border-gray-600 rounded p-4 mb-4"
+            >
               <div className="flex justify-between items-center mb-2">
-                <h3 className="text-white font-medium">Question {questionIndex + 1}</h3>
+                <h3 className="text-white font-medium">
+                  Question {questionIndex + 1}
+                </h3>
                 <button
                   type="button"
                   onClick={() => removeQuestion(questionIndex)}
@@ -235,11 +249,16 @@ export const EditQuizModal = ({ lessonId, quizId, isOpen, onClose }) => {
               </FormField>
 
               {question.answers.map((answer, answerIndex) => (
-                <div key={answerIndex} className="flex items-center space-x-2 mb-2">
+                <div
+                  key={answerIndex}
+                  className="flex items-center space-x-2 mb-2"
+                >
                   <input
                     type="text"
                     value={answer.text}
-                    onChange={(e) => handleAnswerChange(questionIndex, answerIndex, e)}
+                    onChange={(e) =>
+                      handleAnswerChange(questionIndex, answerIndex, e)
+                    }
                     className="flex-1 p-2 bg-gray-700 text-white rounded"
                     placeholder={`Answer ${answerIndex + 1}`}
                   />
@@ -248,7 +267,9 @@ export const EditQuizModal = ({ lessonId, quizId, isOpen, onClose }) => {
                       type="radio"
                       name={`correct-answer-${questionIndex}`}
                       checked={answer.isCorrect}
-                      onChange={() => handleCorrectAnswer(questionIndex, answerIndex)}
+                      onChange={() =>
+                        handleCorrectAnswer(questionIndex, answerIndex)
+                      }
                       className="form-radio"
                     />
                     <span>Correct</span>

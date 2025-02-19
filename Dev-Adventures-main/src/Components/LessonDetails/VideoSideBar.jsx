@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { PlayCircle, PlusCircle, PencilIcon, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -10,6 +11,7 @@ export default function VideoSideBar({
   lessonID,
   courseID,
   onVideoSelect,
+  currentVideo,
 }) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -54,43 +56,50 @@ export default function VideoSideBar({
   };
 
   return (
-    <div className="w-64 bg-gray-900 flex flex-col text-white overflow-hidden mb-10">
-      <div className="bg-gray-900 border-b border-white/10 flex flex-row">
-        <button onClick={handleOpenAddModal}>
-          <h1 className="text-white text-2xl hover:text-blue-500 transition-colors ml-2">
-            <PlusCircle />
-          </h1>
+    <div className="w-64 bg-gray-900 flex flex-col text-white h-full rounded-lg overflow-hidden">
+      {/* Top bar with Add button */}
+      <div className="bg-gray-900 border-b border-white/10 flex items-center">
+        <button onClick={handleOpenAddModal} className="ml-2">
+          <PlusCircle className="text-white text-2xl hover:text-blue-500 transition-colors" />
         </button>
-        <p className="py-4 px-4 text-xl whitespace-nowrap">Video List</p>
+        <p className="py-4 px-4 text-xl">Video List</p>
       </div>
 
-      <div className="text-white/90">
+      {/* Video list */}
+      <div className="text-white/90 overflow-y-auto">
         {videos.length > 0 ? (
           videos.map((video, index) => (
             <div
               key={video.id || index}
               onClick={() => onVideoSelect(video)}
-              className="flex flex-row justify-between items-center bg-gray-900 border-b border-white/10 hover:bg-slate-800 transition-colors cursor-pointer"
+              className="border-b border-white/10 bg-gray-900 hover:bg-gray-700 transition-colors cursor-pointer"
             >
-              <div className="flex flex-row items-center">
-                <PlayCircle className="text-blue-500 w-4 h-4 ml-4 flex-shrink-0" />
-                <p className="text-sm py-3 px-3 whitespace-nowrap">
-                  Video {index + 1}: {video.title}
-                </p>
-              </div>
-              <div className="flex flex-row space-x-2 pr-4">
-                <button
-                  className="text-blue-500 hover:text-blue-600 transition-colors text-md"
-                  onClick={(e) => handleOpenEditModal(video, e)}
-                >
-                  <PencilIcon />
-                </button>
-                <button
-                  className="text-red-500 hover:text-red-600 transition-colors text-md"
-                  onClick={(e) => handleOpenDeleteModal(video, e)}
-                >
-                  <Trash2 />
-                </button>
+              <div className="px-4 py-4">
+                <div className="flex items-start justify-between gap-4">
+                  {/* Left side with icon and text */}
+                  <div className="flex items-start gap-2 flex-1">
+                    <PlayCircle className="text-blue-500 w-4 h-4 flex-shrink-0 mt-1" />
+                    <p className="text-sm break-words">
+                      Video {index + 1}: {video.title}
+                    </p>
+                  </div>
+
+                  {/* Right side with action buttons */}
+                  <div className="flex items-start space-x-2 flex-shrink-0">
+                    <button
+                      onClick={(e) => handleOpenEditModal(video, e)}
+                      className="text-blue-500 hover:text-blue-600 p-1"
+                    >
+                      <PencilIcon className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={(e) => handleOpenDeleteModal(video, e)}
+                      className="text-red-500 hover:text-red-600 p-1"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           ))
@@ -101,6 +110,7 @@ export default function VideoSideBar({
         )}
       </div>
 
+      {/* Modals */}
       <AddVideoModal
         lessonID={numericLessonID}
         courseId={numericCourseID}

@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
-import axios from 'axios';
-import { useSnackbar } from 'notistack';
+/* eslint-disable react/prop-types */
+import { useState, useEffect } from "react";
+import { X } from "lucide-react";
+import axios from "axios";
+import { useSnackbar } from "notistack";
 
 const FormField = ({ label, children, required = false }) => (
   <div className="mb-4">
@@ -16,28 +17,28 @@ export const AddPlanModal = ({ isOpen, onClose, onSuccess }) => {
   const { enqueueSnackbar } = useSnackbar();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
+    title: "",
+    description: "",
     discount: 0,
     level: 0,
-    courseIds: []
+    courseIds: [],
   });
-  
+
   const [availableCourses, setAvailableCourses] = useState([]);
   const [selectedCourses, setSelectedCourses] = useState([]);
-  const BASE_URL = 'http://localhost:5101';
+  const BASE_URL = "http://localhost:5101";
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem("authToken");
         const response = await axios.get(`${BASE_URL}/api/Courses`, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
         setAvailableCourses(response.data);
       } catch (error) {
-        const errorMessage = error.response?.data || 'Error fetching courses';
-        enqueueSnackbar(errorMessage, { variant: 'error' });
+        const errorMessage = error.response?.data || "Error fetching courses";
+        enqueueSnackbar(errorMessage, { variant: "error" });
       }
     };
 
@@ -49,11 +50,11 @@ export const AddPlanModal = ({ isOpen, onClose, onSuccess }) => {
 
   const resetForm = () => {
     setFormData({
-      title: '',
-      description: '',
+      title: "",
+      description: "",
       discount: 0,
       level: 0,
-      courseIds: []
+      courseIds: [],
     });
     setSelectedCourses([]);
     setIsSubmitting(false);
@@ -61,9 +62,9 @@ export const AddPlanModal = ({ isOpen, onClose, onSuccess }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
+    setFormData((prevState) => ({
       ...prevState,
-      [name]: ['discount', 'level'].includes(name) ? parseInt(value) : value
+      [name]: ["discount", "level"].includes(name) ? parseInt(value) : value,
     }));
   };
 
@@ -71,43 +72,49 @@ export const AddPlanModal = ({ isOpen, onClose, onSuccess }) => {
     const courseId = parseInt(e.target.value);
     if (!courseId) return;
 
-    const course = availableCourses.find(c => c.id === courseId);
-    
-    if (course && !selectedCourses.some(sc => sc.id === courseId)) {
+    const course = availableCourses.find((c) => c.id === courseId);
+
+    if (course && !selectedCourses.some((sc) => sc.id === courseId)) {
       const newSelectedCourses = [...selectedCourses, course];
       setSelectedCourses(newSelectedCourses);
-      setFormData(prevState => ({
+      setFormData((prevState) => ({
         ...prevState,
-        courseIds: newSelectedCourses.map(c => c.id)
+        courseIds: newSelectedCourses.map((c) => c.id),
       }));
     }
 
-    e.target.value = '';
+    e.target.value = "";
   };
 
   const handleRemoveCourse = (courseId) => {
-    setSelectedCourses(prev => prev.filter(course => course.id !== courseId));
-    setFormData(prevState => ({
+    setSelectedCourses((prev) =>
+      prev.filter((course) => course.id !== courseId)
+    );
+    setFormData((prevState) => ({
       ...prevState,
-      courseIds: prevState.courseIds.filter(id => id !== courseId)
+      courseIds: prevState.courseIds.filter((id) => id !== courseId),
     }));
   };
 
   const validateForm = () => {
     if (!formData.title.trim()) {
-      enqueueSnackbar('Please enter a plan title', { variant: 'error' });
+      enqueueSnackbar("Please enter a plan title", { variant: "error" });
       return false;
     }
     if (!formData.description.trim()) {
-      enqueueSnackbar('Please enter a plan description', { variant: 'error' });
+      enqueueSnackbar("Please enter a plan description", { variant: "error" });
       return false;
     }
     if (formData.discount < 0 || formData.discount > 100) {
-      enqueueSnackbar('Discount must be between 0 and 100', { variant: 'error' });
+      enqueueSnackbar("Discount must be between 0 and 100", {
+        variant: "error",
+      });
       return false;
     }
     if (selectedCourses.length === 0) {
-      enqueueSnackbar('Please select at least one course', { variant: 'error' });
+      enqueueSnackbar("Please select at least one course", {
+        variant: "error",
+      });
       return false;
     }
     return true;
@@ -118,27 +125,23 @@ export const AddPlanModal = ({ isOpen, onClose, onSuccess }) => {
     if (!validateForm() || isSubmitting) return;
 
     setIsSubmitting(true);
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem("authToken");
 
     try {
-      const response = await axios.post(
-        `${BASE_URL}/api/Plan`,  
-        formData,
-        {
-          headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+      const response = await axios.post(`${BASE_URL}/api/Plan`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
-      enqueueSnackbar('Plan created successfully', { variant: 'success' });
+      enqueueSnackbar("Plan created successfully", { variant: "success" });
       if (onSuccess) onSuccess(response.data);
       onClose();
     } catch (error) {
-      const errorMessage = error.response?.data || 'Error creating plan';
-      enqueueSnackbar(errorMessage, { variant: 'error' });
-      console.error('Error details:', error.response || error);
+      const errorMessage = error.response?.data || "Error creating plan";
+      enqueueSnackbar(errorMessage, { variant: "error" });
+      console.error("Error details:", error.response || error);
     } finally {
       setIsSubmitting(false);
     }
@@ -147,7 +150,7 @@ export const AddPlanModal = ({ isOpen, onClose, onSuccess }) => {
   if (!isOpen) return null;
 
   const remainingCourses = availableCourses.filter(
-    course => !selectedCourses.some(sc => sc.id === course.id)
+    (course) => !selectedCourses.some((sc) => sc.id === course.id)
   );
 
   return (
@@ -189,7 +192,7 @@ export const AddPlanModal = ({ isOpen, onClose, onSuccess }) => {
           </FormField>
 
           <FormField label="Discount (%)" required>
-            <input 
+            <input
               type="number"
               name="discount"
               value={formData.discount}
@@ -223,9 +226,14 @@ export const AddPlanModal = ({ isOpen, onClose, onSuccess }) => {
               value=""
             >
               <option value="">Select a course to add</option>
-              {remainingCourses.map(course => (
+              {remainingCourses.map((course) => (
                 <option key={course.id} value={course.id}>
-                  {course.title} - {course.level === 0 ? 'Beginner' : course.level === 1 ? 'Intermediate' : 'Advanced'}
+                  {course.title} -{" "}
+                  {course.level === 0
+                    ? "Beginner"
+                    : course.level === 1
+                    ? "Intermediate"
+                    : "Advanced"}
                 </option>
               ))}
             </select>
@@ -236,12 +244,17 @@ export const AddPlanModal = ({ isOpen, onClose, onSuccess }) => {
               <h3 className="text-white font-medium mb-2">Selected Courses:</h3>
               <div className="space-y-2">
                 {selectedCourses.map((course, index) => (
-                  <div 
+                  <div
                     key={course.id}
                     className="flex items-center justify-between bg-gray-700 p-2 rounded border border-gray-600"
                   >
                     <span className="text-white">
-                      {index + 1}. {course.title} - {course.level === 0 ? 'Beginner' : course.level === 1 ? 'Intermediate' : 'Advanced'}
+                      {index + 1}. {course.title} -{" "}
+                      {course.level === 0
+                        ? "Beginner"
+                        : course.level === 1
+                        ? "Intermediate"
+                        : "Advanced"}
                     </span>
                     <button
                       type="button"
@@ -267,10 +280,10 @@ export const AddPlanModal = ({ isOpen, onClose, onSuccess }) => {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-500 focus:ring-2 focus:ring-green-400 disabled:bg-green-800 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:ring-2 focus:ring-green-400 cursor-pointer "
               disabled={isSubmitting || selectedCourses.length === 0}
             >
-              {isSubmitting ? 'Creating...' : 'Create Plan'}
+              {isSubmitting ? "Creating..." : "Create Plan"}
             </button>
           </div>
         </form>

@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
@@ -9,6 +11,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
+import Navbar from "../../../Components/Navigators/Navbar";
 
 const MAX_CHARS = 150;
 
@@ -49,6 +52,55 @@ export default function LessonDetailsPage() {
     };
     if (courseId) fetchAllLessons();
   }, [courseId, passedLessons]);
+
+  const handleNextLesson = () => {
+    const currentLessonIndex = allLessons.findIndex((l) => l.id === lesson?.id);
+    if (currentLessonIndex !== -1 && currentLessonIndex < allLessons.length - 1) {
+      const nextLesson = allLessons[currentLessonIndex + 1];
+      navigate(`/courses/${courseId}/lessons/${nextLesson.id}`, {
+        state: { courseData, lessons: allLessons, lessonData: nextLesson },
+      });
+      window.location.reload(); // Refresh the page
+    }
+  };
+
+  const handlePreviousLesson = () => {
+    const currentLessonIndex = allLessons.findIndex((l) => l.id === lesson?.id);
+    if (currentLessonIndex > 0) {
+      const prevLesson = allLessons[currentLessonIndex - 1];
+      navigate(`/courses/${courseId}/lessons/${prevLesson.id}`, {
+        state: { courseData, lessons: allLessons, lessonData: prevLesson },
+      });
+      window.location.reload(); // Refresh the page
+    }
+  };
+
+  const handleNextVideo = () => {
+    const currentIndex = videos.findIndex((v) => v.id === currentVideo?.id);
+    if (currentIndex !== -1 && currentIndex < videos.length - 1) {
+      setCurrentVideo(videos[currentIndex + 1]);
+    }
+  };
+
+  const handlePreviousVideo = () => {
+    const currentIndex = videos.findIndex((v) => v.id === currentVideo?.id);
+    if (currentIndex > 0) {
+      setCurrentVideo(videos[currentIndex - 1]);
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if (e.key === "ArrowRight") {
+        handleNextVideo();
+      } else if (e.key === "ArrowLeft") {
+        handlePreviousVideo();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [currentVideo, videos]);
 
   useEffect(() => {
     const fetchLessonDetails = async () => {
@@ -105,33 +157,9 @@ export default function LessonDetailsPage() {
     if (lesson && courseId && lessonId) fetchVideos();
   }, [lesson, courseId, lessonId]);
 
-  const handleNextLesson = () => {
-    const currentIndex = allLessons.findIndex((l) => l.id === Number(lessonId));
-    if (currentIndex >= 0 && currentIndex < allLessons.length - 1) {
-      const nextLesson = allLessons[currentIndex + 1];
-      navigate(`/courses/${courseId}/lessons/${nextLesson.id}`, {
-        state: { lessonData: nextLesson, courseData, lessons: allLessons },
-      });
-    }
-  };
-
-  const handlePreviousLesson = () => {
-    const currentIndex = allLessons.findIndex((l) => l.id === Number(lessonId));
-    if (currentIndex > 0) {
-      const previousLesson = allLessons[currentIndex - 1];
-      navigate(`/courses/${courseId}/lessons/${previousLesson.id}`, {
-        state: { lessonData: previousLesson, courseData, lessons: allLessons },
-      });
-    }
-  };
-
   const handleVideoSelect = (video) => {
     setCurrentVideo(video);
   };
-
-  const currentIndex = allLessons.findIndex((l) => l.id === Number(lessonId));
-  const isFirstLesson = currentIndex === 0;
-  const isLastLesson = currentIndex === allLessons.length - 1;
 
   const shouldShowButton = lesson?.description?.length > MAX_CHARS;
   const displayText = isExpanded
@@ -167,7 +195,9 @@ export default function LessonDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-row justify-around">
+    <div className="min-h-screen bg-gray-900 flex flex-row justify-around py-20">
+      <Navbar />
+
       {/* Main lesson content */}
       <div className="p-8 ml-8 flex-1">
         <div className="flex flex-row space-x-3 text-center mb-6">
@@ -215,19 +245,30 @@ export default function LessonDetailsPage() {
         <div className="flex justify-end mb-6 space-x-4">
           <button
             onClick={handlePreviousLesson}
-            disabled={isFirstLesson}
-            className="w-44 flex text-white border-blue-500 border-2 hover:border-blue-400 hover:bg-blue-500/10 transition-all duration-200 py-3 rounded-md items-center group"
+            disabled={!lesson || allLessons.findIndex((l) => l.id === lesson.id) === 0}
+            className={`flex items-center px-5 py-3 rounded-lg text-lg font-medium transition-all duration-200 
+              ${
+                !lesson || allLessons.findIndex((l) => l.id === lesson.id) === 0
+                  ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-500 text-white shadow-md"
+              }`}
           >
-            <ArrowBigLeft className="px-2 text-blue-500 group-hover:-translate-x-1 transition-transform" />
-            <span className="text-lg">Previous Lesson</span>
+            <ArrowBigLeft className="w-6 h-6 mr-2" />
+            Previous Lesson
           </button>
+
           <button
             onClick={handleNextLesson}
-            disabled={isLastLesson}
-            className="w-44 flex text-white border-blue-500 border-2 hover:border-blue-400 hover:bg-blue-500/10 transition-all duration-200 py-3 rounded-md items-center group"
+            disabled={!lesson || allLessons.findIndex((l) => l.id === lesson.id) === allLessons.length - 1}
+            className={`flex items-center px-5 py-3 rounded-lg text-lg font-medium transition-all duration-200 
+              ${
+                !lesson || allLessons.findIndex((l) => l.id === lesson.id) === allLessons.length - 1
+                  ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-500 text-white shadow-md"
+              }`}
           >
-            <ArrowBigRight className="px-2 text-blue-500 group-hover:translate-x-1 transition-transform" />
-            <span className="text-lg">Next Lesson</span>
+            Next Lesson
+            <ArrowBigRight className="w-6 h-6 ml-2" />
           </button>
         </div>
         <VideoSideBar
