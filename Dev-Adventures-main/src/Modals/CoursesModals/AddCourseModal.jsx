@@ -25,6 +25,7 @@ const AddCourseModal = ({ isOpen, onClose, onCourseAdded }) => {
     duration: "",
     level: "Beginner",
     language: "",
+    previewURL: "", // Added previewURL field
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -58,24 +59,31 @@ const AddCourseModal = ({ isOpen, onClose, onCourseAdded }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-
     const token = localStorage.getItem("authToken");
-
+  
     try {
       const formDataToSubmit = new FormData();
       formDataToSubmit.append("Title", formData.title);
       formDataToSubmit.append("Description", formData.description);
-      formDataToSubmit.append("Rating", formData.rating);
-      formDataToSubmit.append("Price", formData.price);
+      formDataToSubmit.append("Rating", formData.rating.toString());
+      formDataToSubmit.append("Price", formData.price.toString());
       formDataToSubmit.append("Status", formData.status);
-      formDataToSubmit.append("Duration", formData.duration);
+      formDataToSubmit.append("Duration", formData.duration.toString());
       formDataToSubmit.append("Level", formData.level);
       formDataToSubmit.append("Language", formData.language);
-
+      
+      // Handle previewURL - only append if it has a value, otherwise send empty string
+      formDataToSubmit.append("previewURL", formData.previewURL || "");
+  
       if (formData.imageFile) {
         formDataToSubmit.append("ImgURL", formData.imageFile);
       }
-
+  
+      // Debug log to verify the data being sent
+      for (let pair of formDataToSubmit.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+      }
+  
       const response = await axios.post(
         "http://localhost:5101/api/Courses",
         formDataToSubmit,
@@ -86,25 +94,32 @@ const AddCourseModal = ({ isOpen, onClose, onCourseAdded }) => {
           },
         }
       );
-
+  
       enqueueSnackbar("Course added successfully!", {
         variant: "success",
         autoHideDuration: 3000,
       });
-
+  
       setFormData(initialFormData);
       setImagePreview(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
       onClose();
-
+  
       if (onCourseAdded) {
         onCourseAdded(response.data);
       }
     } catch (error) {
+      console.error("Full error:", error);
+      if (error.response) {
+        console.error("Response data:", error.response.data);
+        console.error("Response status:", error.response.status);
+      }
+      
       const message =
-        error.response?.data.message ||
+        error.response?.data?.message ||
+        error.message ||
         "An error occurred while adding the course.";
       enqueueSnackbar(message, {
         variant: "error",
@@ -114,7 +129,6 @@ const AddCourseModal = ({ isOpen, onClose, onCourseAdded }) => {
       setIsLoading(false);
     }
   };
-
   if (!isOpen) return null;
 
   return (
@@ -173,6 +187,19 @@ const AddCourseModal = ({ isOpen, onClose, onCourseAdded }) => {
               placeholder="Enter description"
               disabled={isLoading}
               required
+            />
+          </FormField>
+
+          {/* Added Preview URL field */}
+          <FormField label="YouTube Preview URL">
+            <input
+              type="text"
+              name="previewURL"
+              value={formData.previewURL}
+              onChange={handleChange}
+              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-100 placeholder-gray-400 text-base"
+              placeholder="Enter YouTube URL (e.g., https://www.youtube.com/watch?v=example)"
+              disabled={isLoading}
             />
           </FormField>
 

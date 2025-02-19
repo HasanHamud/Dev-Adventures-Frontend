@@ -53,6 +53,31 @@ export default function LessonDetailsPage() {
     if (courseId) fetchAllLessons();
   }, [courseId, passedLessons]);
 
+<<<<<<< HEAD
+=======
+  const handleNextLesson = () => {
+    const currentLessonIndex = allLessons.findIndex((l) => l.id === lesson?.id);
+    if (currentLessonIndex !== -1 && currentLessonIndex < allLessons.length - 1) {
+      const nextLesson = allLessons[currentLessonIndex + 1];
+      navigate(`/courses/${courseId}/lessons/${nextLesson.id}`, {
+        state: { courseData, lessons: allLessons, lessonData: nextLesson },
+      });
+      window.location.reload(); // Refresh the page
+    }
+  };
+
+  const handlePreviousLesson = () => {
+    const currentLessonIndex = allLessons.findIndex((l) => l.id === lesson?.id);
+    if (currentLessonIndex > 0) {
+      const prevLesson = allLessons[currentLessonIndex - 1];
+      navigate(`/courses/${courseId}/lessons/${prevLesson.id}`, {
+        state: { courseData, lessons: allLessons, lessonData: prevLesson },
+      });
+      window.location.reload(); // Refresh the page
+    }
+  };
+
+>>>>>>> 0a39faa8ce6cacaf5b3ce006a12a9c2f8b03ba9c
   const handleNextVideo = () => {
     const currentIndex = videos.findIndex((v) => v.id === currentVideo?.id);
     if (currentIndex !== -1 && currentIndex < videos.length - 1) {
@@ -222,6 +247,7 @@ export default function LessonDetailsPage() {
       <div className="p-4 mt-2 flex flex-col justify-start">
         <div className="flex justify-end mb-6 space-x-4">
           <button
+<<<<<<< HEAD
             onClick={handlePreviousVideo}
             disabled={
               !currentVideo ||
@@ -259,6 +285,33 @@ export default function LessonDetailsPage() {
           >
             <ArrowBigRight className="px-2 text-blue-500 group-hover:translate-x-1 transition-transform" />
             <span className="text-lg">Next Video</span>
+=======
+            onClick={handlePreviousLesson}
+            disabled={!lesson || allLessons.findIndex((l) => l.id === lesson.id) === 0}
+            className={`flex items-center px-5 py-3 rounded-lg text-lg font-medium transition-all duration-200 
+              ${
+                !lesson || allLessons.findIndex((l) => l.id === lesson.id) === 0
+                  ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-500 text-white shadow-md"
+              }`}
+          >
+            <ArrowBigLeft className="w-6 h-6 mr-2" />
+            Previous Lesson
+          </button>
+
+          <button
+            onClick={handleNextLesson}
+            disabled={!lesson || allLessons.findIndex((l) => l.id === lesson.id) === allLessons.length - 1}
+            className={`flex items-center px-5 py-3 rounded-lg text-lg font-medium transition-all duration-200 
+              ${
+                !lesson || allLessons.findIndex((l) => l.id === lesson.id) === allLessons.length - 1
+                  ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-500 text-white shadow-md"
+              }`}
+          >
+            Next Lesson
+            <ArrowBigRight className="w-6 h-6 ml-2" />
+>>>>>>> 0a39faa8ce6cacaf5b3ce006a12a9c2f8b03ba9c
           </button>
         </div>
         <VideoSideBar

@@ -38,15 +38,14 @@ export function CourseCard({ course, onEdit }) {
       }
     }
   }, []);
-
   const handleStartLearningClick = () => {
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
+      // Simply pass the full course object through navigation state
       navigate("/courses/details", { state: { courseData: course } });
     }, 1000);
   };
-
   return (
     <div className="bg-gray-800 rounded-lg shadow-xl overflow-hidden border border-gray-700 hover:border-blue-500 transition-colors flex flex-col h-full">
       <div className="relative h-48 w-full">

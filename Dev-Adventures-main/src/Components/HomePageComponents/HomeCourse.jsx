@@ -2,16 +2,19 @@
 
 import placeholder from "../../Assets/images/Placeholder.png";
 
-export default function HomeCourse({ text, text2 }) {
+export default function HomeCourse({ text, text2, imgUrl }) {
   return (
     <div className="flex flex-col bg-[#2a2a2a] rounded-xl w-80 h-72 shadow-md transition-all ease-in-out duration-100 hover:-translate-y-3">
-      <div className=" rounded-md ">
-        <img src={placeholder} className="w-80 h-36 rounded-2xl"></img>
+      <div className="rounded-md">
+        <img
+          src={imgUrl || placeholder}  // Use imgUrl if available, otherwise fallback to placeholder
+          alt={text || "Course Image"} // Add alt text for accessibility
+          className="w-80 h-36 rounded-2xl object-cover"  // object-cover ensures the image fills the area nicely
+        />
       </div>
 
       <div className="mt-5 text-center">
         <h1 className="text-lg text-white">{text}</h1>
-
         <h1 className="text-md text-gray-500">{text2}</h1>
       </div>
     </div>
