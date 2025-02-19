@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useState } from "react";
 import { PartyPopper } from "lucide-react";
 
@@ -82,10 +83,10 @@ const CheckoutSummary = ({ total, courseId, onCouponApplied }) => {
       }
 
       const result = await response.json();
-      
+
       setCheckoutStatus({
         enrolled: result.enrolledCourses,
-        skipped: result.skippedCourses
+        skipped: result.skippedCourses,
       });
 
       setShowCelebration(true);
@@ -132,7 +133,8 @@ const CheckoutSummary = ({ total, courseId, onCouponApplied }) => {
             {checkoutStatus.skipped > 0 && (
               <>
                 <br />
-                Skipped {checkoutStatus.skipped} course(s) you were already enrolled in
+                Skipped {checkoutStatus.skipped} course(s) you were already
+                enrolled in
               </>
             )}
           </div>
@@ -160,12 +162,11 @@ const CheckoutSummary = ({ total, courseId, onCouponApplied }) => {
         disabled={isProcessing}
         className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg text-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isProcessing 
-          ? "Processing..." 
-          : total === 0 
-            ? "Get Course for Free →" 
-            : "Proceed to Checkout →"
-        }
+        {isProcessing
+          ? "Processing..."
+          : total === 0
+          ? "Get Course for Free →"
+          : "Proceed to Checkout →"}
       </button>
 
       {total > 0 && (
