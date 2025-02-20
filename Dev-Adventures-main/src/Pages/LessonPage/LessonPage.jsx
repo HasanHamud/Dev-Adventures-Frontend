@@ -507,7 +507,7 @@ export default function LessonPage() {
           <p className="text-gray-400">
             {description || "Loading course description..."}
           </p>
-
+          ``
           {/* Course Completion Section */}
           {courseCompleted && (
             <div className="mt-4 text-green-500">
