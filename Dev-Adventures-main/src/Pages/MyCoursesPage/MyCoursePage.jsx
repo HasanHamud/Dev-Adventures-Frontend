@@ -64,9 +64,11 @@ function MyCoursePage() {
       state: {
         courseData: {
           ...course,
-          id: course.courseId, // Add id property for compatibility
+          id: course.courseId,
         },
         lessons: course.lessons || [],
+        title: course.title,
+        description: course.description,
       },
     });
   };
