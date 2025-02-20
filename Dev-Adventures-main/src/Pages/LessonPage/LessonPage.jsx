@@ -1,7 +1,9 @@
+/* eslint-disable no-undef */
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useSnackbar } from "notistack";
-import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 
 import { Button } from "../../Components/LessonDetailsComponents/Button";
@@ -25,6 +27,8 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
+import { jwtDecode } from "jwt-decode";
+import { jsPDF } from "jspdf";
 
 export default function LessonPage() {
   const { courseId } = useParams();
@@ -38,12 +42,16 @@ export default function LessonPage() {
   const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [expandedLesson, setExpandedLesson] = useState(null);
+  const location = useLocation();
+  const { title, description } = location.state || {};
   const [courseDetails, setCourseDetails] = useState({
     title: "",
     description: "",
   });
   const [lessonQuizzes, setLessonQuizzes] = useState({});
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [lessonProgress, setLessonProgress] = useState({});
+  const [courseCompleted, setCourseCompleted] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   if (!courseId) {
     return (
@@ -53,20 +61,138 @@ export default function LessonPage() {
     );
   }
 
-  // Check if user is admin
-  const checkIfAdmin = () => {
+  const checkLessonCompletion = async (lessonId) => {
     const token = localStorage.getItem("authToken");
-    if (token) {
-      try {
-        const decodedToken = jwtDecode(token);
-        const roles = decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
-        const userIsAdmin = Array.isArray(roles)
-          ? roles.includes("Admin")
-          : roles === "Admin";
-        setIsAdmin(userIsAdmin);
-      } catch (error) {
-        console.error("Error decoding token:", error);
+    if (!token) return false;
+
+    try {
+      const videosResponse = await axios.get(
+        `http://localhost:5101/api/video/lesson/${lessonId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const completedVideosResponse = await axios.get(
+        `http://localhost:5101/api/progress/video/completed/${lessonId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const allVideos = videosResponse.data;
+      const completedVideos = completedVideosResponse.data;
+
+      const isComplete =
+        allVideos.length > 0 &&
+        allVideos.every((video) =>
+          completedVideos.some((completed) => completed.videoId === video.id)
+        );
+
+      if (isComplete) {
+        await markLessonAsCompleted(lessonId);
+        return true;
       }
+
+      return false;
+    } catch (error) {
+      console.error("Error checking lesson completion:", error);
+      return false;
+    }
+  };
+  const getUserIdFromToken = () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) return null;
+
+    try {
+      const decodedToken = jwtDecode(token);
+      console.log(decodedToken);
+      return decodedToken.sub;
+    } catch (error) {
+      console.error("Failed to decode token:", error);
+      return null;
+    }
+  };
+
+  const checkCourseCompletion = async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) return;
+
+    try {
+      const completedLessons = lessons.filter(
+        (lesson) => lesson.status === "completed"
+      );
+      const allLessonsCompleted =
+        completedLessons.length === lessons.length && lessons.length > 0;
+
+      if (allLessonsCompleted && !courseCompleted) {
+        await markCourseAsCompleted();
+        setCourseCompleted(true);
+        enqueueSnackbar("Course completed successfully!", {
+          variant: "success",
+        });
+      }
+    } catch (error) {
+      console.error("Error checking course completion:", error);
+    }
+  };
+
+  const markLessonAsCompleted = async (lessonId) => {
+    const token = localStorage.getItem("authToken");
+    if (!token) return;
+
+    try {
+      await axios.post(
+        `http://localhost:5101/api/progress/lesson/${lessonId}/complete`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      setLessons((prevLessons) =>
+        prevLessons.map((lesson) =>
+          lesson.id === lessonId ? { ...lesson, status: "completed" } : lesson
+        )
+      );
+
+      enqueueSnackbar("Lesson completed successfully!", { variant: "success" });
+
+      await checkCourseCompletion();
+    } catch (error) {
+      console.error("Error marking lesson as completed:", error);
+      enqueueSnackbar("Failed to mark lesson as completed", {
+        variant: "error",
+      });
+    }
+  };
+
+  const markCourseAsCompleted = async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) return;
+
+    try {
+      await axios.post(
+        `http://localhost:5101/api/progress/course/${courseId}/complete`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error marking course as completed:", error);
     }
   };
 
@@ -77,20 +203,52 @@ export default function LessonPage() {
       return;
     }
     try {
-      const response = await axios.get(
-        `http://localhost:5101/api/lesson/courses/${courseId}`,
-        {
+      const [lessonsResponse, courseProgressResponse] = await Promise.all([
+        axios.get(`http://localhost:5101/api/lesson/courses/${courseId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        }
-      );
-      setLessons(response.data);
+        }),
+        axios.get(
+          `http://localhost:5101/api/progress/course/${courseId}/status`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        ),
+      ]);
+
+      setLessons(lessonsResponse.data);
+      setCourseCompleted(courseProgressResponse.data.isCompleted);
+
+      for (const lesson of lessonsResponse.data) {
+        await checkLessonCompletion(lesson.id);
+      }
+
+      await checkCourseCompletion();
     } catch (error) {
       console.error("Something went wrong:", error);
       setError("Failed to fetch lessons");
     }
+  };
+
+  const handleVideoCompletion = async (lessonId) => {
+    const lessonCompleted = await checkLessonCompletion(lessonId);
+    if (lessonCompleted) {
+      await checkCourseCompletion();
+      fetchAllLessons(courseId);
+    }
+  };
+  const navigateToLesson = (lesson) => {
+    navigate(`/courses/${courseId}/lessons/${lesson.id}`, {
+      state: {
+        lessonData: lesson,
+        onVideoCompletion: () => handleVideoCompletion(lesson.id),
+      },
+    });
   };
 
   const fetchCourseDetails = async (courseId) => {
@@ -101,7 +259,7 @@ export default function LessonPage() {
     }
     try {
       const response = await axios.get(
-        `http://localhost:5101/api/coursedetails/${courseId}`,
+        `http://localhost:5101/api/progress/course/${courseId}/status`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -109,26 +267,21 @@ export default function LessonPage() {
           },
         }
       );
-      setCourseDetails(response.data);
+
+      setCourseCompleted(response.data.isCompleted);
     } catch (error) {
-      console.error("Failed to fetch course details:", error);
-      setError("Failed to fetch course details");
+      console.error("Failed to fetch course progress:", error);
+      setError("Failed to fetch course progress");
     }
   };
-
-  useEffect(() => {
-    checkIfAdmin();
-    fetchCourseDetails(courseId);
-    fetchAllLessons(courseId);
-  }, [courseId]);
 
   useEffect(() => {
     const checkQuizzes = async () => {
       const token = localStorage.getItem("authToken");
       if (!token) return;
-      
+
       const quizStatus = {};
-      
+
       for (const lesson of lessons) {
         try {
           const response = await axios.get(
@@ -142,20 +295,56 @@ export default function LessonPage() {
           );
           quizStatus[lesson.id] = {
             exists: !!response.data,
-            data: response.data
+            data: response.data,
           };
         } catch (error) {
           console.error(`Error checking quiz for lesson ${lesson.id}:`, error);
           quizStatus[lesson.id] = {
             exists: false,
-            data: null
+            data: null,
           };
         }
       }
-      
+
       setLessonQuizzes(quizStatus);
     };
-  
+
+    if (lessons.length > 0) {
+      checkQuizzes();
+    }
+  }, [lessons]);
+
+  useEffect(() => {
+    fetchCourseDetails(courseId);
+    fetchAllLessons(courseId);
+  }, [courseId]);
+
+  useEffect(() => {
+    const checkQuizzes = async () => {
+      const token = localStorage.getItem("authToken");
+
+      const quizStatus = {};
+
+      for (const lesson of lessons) {
+        try {
+          const response = await axios.get(
+            `http://localhost:5101/api/quiz/lesson/${lesson.id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          quizStatus[lesson.id] = !!response.data;
+        } catch (error) {
+          quizStatus[lesson.id] = false;
+        }
+      }
+
+      setLessonQuizzes(quizStatus);
+    };
+
     if (lessons.length > 0) {
       checkQuizzes();
     }
@@ -171,20 +360,117 @@ export default function LessonPage() {
     setIsDeleteModalOpen(true);
   };
 
+  const handleDownloadCertificate = async () => {
+    const token = localStorage.getItem("authToken");
+    const userId = getUserIdFromToken();
+
+    if (!token || !userId) {
+      enqueueSnackbar("User not authenticated. Please log in.", {
+        variant: "error",
+      });
+      return;
+    }
+
+    setIsDownloading(true);
+
+    try {
+      const profileResponse = await axios.get(
+        `http://localhost:5101/api/Profile/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log(profileResponse.data);
+
+      const userProfile = profileResponse.data;
+      const userName = userProfile.fullname || "John Doe";
+      const courseName = title || "Course Name";
+
+      console.log("User Profile:", userProfile);
+
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+
+      doc.setFillColor(240, 240, 240);
+      doc.rect(0, 0, pageWidth, pageHeight, "F");
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(1);
+      doc.rect(10, 10, pageWidth - 20, pageHeight - 20);
+
+      doc.setFontSize(30);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(0, 0, 0);
+      doc.text("Certificate of Completion", pageWidth / 2, 50, {
+        align: "center",
+      });
+
+      doc.setFontSize(24);
+      doc.setFont("helvetica", "normal");
+      doc.text(`This is to certify that`, pageWidth / 2, 80, {
+        align: "center",
+      });
+      doc.text(`${userName}`, pageWidth / 2, 100, { align: "center" });
+
+      doc.text(`has successfully completed the course`, pageWidth / 2, 120, {
+        align: "center",
+      });
+      doc.text(`${courseName}`, pageWidth / 2, 140, { align: "center" });
+
+      doc.setFontSize(16);
+      doc.setFont("helvetica", "italic");
+      doc.text(
+        description || "Course description goes here",
+        pageWidth / 2,
+        160,
+        {
+          align: "center",
+          maxWidth: pageWidth - 40,
+        }
+      );
+
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "normal");
+      doc.text("Signature: ", 50, pageHeight - 30);
+
+      doc.setLineWidth(1);
+      doc.line(60, pageHeight - 35, 120, pageHeight - 35);
+
+      doc.save(`Certificate-${courseId}.pdf`);
+
+      enqueueSnackbar("Certificate downloaded successfully!", {
+        variant: "success",
+      });
+    } catch (error) {
+      console.error("Error generating certificate:", error);
+      enqueueSnackbar("Failed to generate certificate", { variant: "error" });
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   const handleOpenQuiz = (lesson, index) => {
     if (lessonQuizzes[lesson.id]) {
       navigate(`/courses/${courseId}/lessons/${lesson.id}/quiz`, {
         state: {
           lessonId: lesson.id,
-          lessonNumber: index + 1
-        }
+          lessonNumber: index + 1,
+        },
       });
     } else {
       setSelectedLesson({ ...lesson, quizMode: "create" });
       setIsQuizModalOpen(true);
     }
   };
-
   const handleCloseModals = () => {
     setIsAddModalOpen(false);
     setIsEditModalOpen(false);
@@ -215,21 +501,35 @@ export default function LessonPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Course Header */}
         <div className="mb-8 text-center">
-          <h1 className="mb-2 text-3xl font-bold tracking-tight text-white">
-            {courseDetails.title || "Loading..."}
+          <h1 className="mb-2 text-3xl font-bold tracking-tight text-gray-900">
+            {title || "Loading..."}
           </h1>
           <p className="text-gray-400">
-            {courseDetails.description || "Loading course description..."}
+            {description || "Loading course description..."}
           </p>
-          {isAdmin && (
-            <div className="mt-4">
-              <Button onClick={handleAddLesson} className="inline-flex items-center">
-                Add New Lesson <PlusCircle className="ml-2 h-4 w-4" />
-              </Button>
+{/* Add Lesson Button */}
+<div className="mt-4">
+            <Button
+              onClick={handleAddLesson}
+              className="inline-flex items-center bg-blue-500 text-white hover:bg-blue-600"
+            >
+              Add New Lesson <PlusCircle className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+          {/* Course Completion Section */}
+          {courseCompleted && (
+            <div className="mt-4 text-green-500">
+              <CheckCircle className="inline h-6 w-6" /> Course Completed
+              <button
+                onClick={handleDownloadCertificate}
+                className="ml-4 inline-flex items-center bg-green-500 text-white hover:bg-green-600 px-4 py-2 rounded-md"
+              >
+                {isDownloading ? "Downloading..." : "Download Certificate"}
+              </button>
             </div>
           )}
         </div>
-  
+
         {/* Course Stats */}
         <div className="mx-auto mb-10 flex justify-center gap-4">
           <div className="rounded-lg bg-gray-900/50 p-4">
@@ -272,7 +572,7 @@ export default function LessonPage() {
             </div>
           </div>
         </div>
-  
+
         {/* Lessons Accordion */}
         <div className="mx-auto max-w-4xl">
           <div className="mb-6 flex items-center justify-between">
@@ -295,7 +595,9 @@ export default function LessonPage() {
                 <div
                   className="flex cursor-pointer items-center justify-between p-4"
                   onClick={() =>
-                    setExpandedLesson(expandedLesson === lesson.id ? null : lesson.id)
+                    setExpandedLesson(
+                      expandedLesson === lesson.id ? null : lesson.id
+                    )
                   }
                 >
                   <div className="flex items-center gap-4">
@@ -327,28 +629,24 @@ export default function LessonPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    {isAdmin && (
-                      <>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditLesson(lesson);
-                          }}
-                          className="rounded-full p-1 text-gray-400 hover:text-white"
-                        >
-                          <Pencil className="h-4 w-4 text-blue-500 hover:text-blue-600" />
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteLesson(lesson);
-                          }}
-                          className="rounded-full p-1 text-gray-400 hover:text-white"
-                        >
-                          <Trash2 className="h-4 w-4 text-red-500 hover:text-red-600" />
-                        </button>
-                      </>
-                    )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditLesson(lesson);
+                      }}
+                      className="rounded-full p-1 text-gray-400 hover:text-white"
+                    >
+                      <Pencil className="h-4 w-4 text-blue-500 hover:text-blue-600" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteLesson(lesson);
+                      }}
+                      className="rounded-full p-1 text-gray-400 hover:text-white"
+                    >
+                      <Trash2 className="h-4 w-4 text-red-500 hover:text-red-600" />
+                    </button>
                     <div className="flex items-center gap-2 text-sm text-gray-400">
                       <Clock className="h-4 w-4" />
                       <span>{lesson.duration || "20 mins"}</span>
@@ -360,20 +658,18 @@ export default function LessonPage() {
                     />
                   </div>
                 </div>
-  
+
                 {/* Expanded Lesson Details */}
                 {expandedLesson === lesson.id && (
                   <div className="border-t border-gray-700 p-4">
                     <div className="grid gap-6 lg:grid-cols-2">
                       {/* Lesson Content */}
                       <div className="space-y-4">
-                        {isAdmin && (
-                          <LearningOutcomesComponent
-                            lessonId={lesson.id}
-                            initialOutcomes={lesson.outcomes || []}
-                            onUpdate={() => fetchAllLessons(courseId)}
-                          />
-                        )}
+                        <LearningOutcomesComponent
+                          lessonId={lesson.id}
+                          initialOutcomes={lesson.outcomes || []}
+                          onUpdate={() => fetchAllLessons(courseId)}
+                        />
                         <Button
                           className={`w-full ${
                             lesson.status === "completed"
@@ -381,9 +677,12 @@ export default function LessonPage() {
                               : "bg-blue-500 text-white hover:bg-blue-600"
                           }`}
                           onClick={() =>
-                            navigate(`/courses/${courseId}/lessons/${lesson.id}`, {
-                              state: { lessonData: lesson },
-                            })
+                            navigate(
+                              `/courses/${courseId}/lessons/${lesson.id}`,
+                              {
+                                state: { lessonData: lesson },
+                              }
+                            )
                           }
                         >
                           {lesson.status === "completed"
@@ -391,41 +690,38 @@ export default function LessonPage() {
                             : "Start Lesson"}
                         </Button>
                       </div>
-  
+
                       {/* Quiz Section */}
-                     {/* Quiz Section */}
-<div className="space-y-4 rounded-lg border border-gray-700 bg-gray-800/50 p-4">
-  <div className="flex items-center justify-between">
-    <div className="flex items-center gap-2">
-      <BrainCircuit className="h-5 w-5 text-purple-400" />
-      <h4 className="font-medium text-white">Lesson Quiz</h4>
-    </div>
-  </div>
-  
-  {lessonQuizzes[lesson.id]?.exists ? (
-    <div className="space-y-3">
-      <Button
-        className="w-full bg-purple-600 text-white hover:bg-purple-700"
-        onClick={() => handleOpenQuiz(lesson, index)}
-      >
-        Start Quiz
-      </Button>
-    </div>
-  ) : isAdmin ? (
-    <div className="space-y-3">
-      <Button
-        className="w-full bg-purple-600 text-white hover:bg-purple-700"
-        onClick={() => handleOpenQuiz(lesson, index)}
-      >
-        Create Quiz
-      </Button>
-    </div>
-  ) : (
-    <div className="text-gray-400 text-center py-2">
-      No quiz available
-    </div>
-  )}
-</div>
+                      <div className="space-y-4 rounded-lg border border-gray-700 bg-gray-800/50 p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <BrainCircuit className="h-5 w-5 text-purple-400" />
+                            <h4 className="font-medium text-white">
+                              Lesson Quiz
+                            </h4>
+                          </div>
+                        </div>
+
+                        {lessonQuizzes[lesson.id] ? (
+                          <div className="space-y-3">
+                            <Button
+                              className="w-full bg-purple-600 text-white hover:bg-purple-700"
+                              onClick={() => handleOpenQuiz(lesson, index)}
+                            >
+                              Start Quiz
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            <Button
+                              className="w-full bg-purple-600 text-white hover:bg-purple-700"
+                              onClick={() => handleOpenQuiz(lesson, index)}
+                            >
+                              Create Quiz
+                            </Button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -434,43 +730,39 @@ export default function LessonPage() {
           </div>
         </div>
       </div>
-  
+
       {/* Modals */}
-      {isAdmin && (
-        <>
-          <AddLessonModal
-            courseId={courseId}
-            isOpen={isAddModalOpen}
-            onClose={handleCloseModals}
-          />
-          {isEditModalOpen && selectedLesson && (
-            <EditLessonModal
-              isOpen={isEditModalOpen}
-              onClose={handleCloseModals}
-              courseId={courseId}
-              lessonId={selectedLesson.id}
-              onUpdate={handleCloseModals}
-            />
-          )}
-          {isDeleteModalOpen && selectedLesson && (
-            <DeleteLessonModal
-              isOpen={isDeleteModalOpen}
-              onClose={handleCloseModals}
-              courseId={courseId}
-              lessonId={selectedLesson.id}
-              lessonTitle={selectedLesson.title}
-              onDelete={handleCloseModals}
-            />
-          )}
-          {isQuizModalOpen && selectedLesson && (
-            <AddQuizModal
-              lessonId={selectedLesson.id}
-              isOpen={isQuizModalOpen}
-              onClose={handleCloseModals}
-              mode={selectedLesson.quizMode}
-            />
-          )}
-        </>
+      <AddLessonModal
+        courseId={courseId}
+        isOpen={isAddModalOpen}
+        onClose={handleCloseModals}
+      />
+      {isEditModalOpen && selectedLesson && (
+        <EditLessonModal
+          isOpen={isEditModalOpen}
+          onClose={handleCloseModals}
+          courseId={courseId}
+          lessonId={selectedLesson.id}
+          onUpdate={handleCloseModals}
+        />
+      )}
+      {isDeleteModalOpen && selectedLesson && (
+        <DeleteLessonModal
+          isOpen={isDeleteModalOpen}
+          onClose={handleCloseModals}
+          courseId={courseId}
+          lessonId={selectedLesson.id}
+          lessonTitle={selectedLesson.title}
+          onDelete={handleCloseModals}
+        />
+      )}
+      {isQuizModalOpen && selectedLesson && (
+        <AddQuizModal
+          lessonId={selectedLesson.id}
+          isOpen={isQuizModalOpen}
+          onClose={handleCloseModals}
+          mode={selectedLesson.quizMode}
+        />
       )}
     </div>
   );

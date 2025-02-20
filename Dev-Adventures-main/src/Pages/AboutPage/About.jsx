@@ -11,18 +11,28 @@ export default function About() {
 
       <div className="text-center pt-32">
         <h1 className="text-5xl font-bold">About Us</h1>
-        <p className="text-2xl font-semibold mt-4">Meet the team behind Dev Adventures</p>
+        <p className="text-2xl font-semibold mt-4">
+          Meet the team behind Dev Adventures
+        </p>
       </div>
 
       <div className="flex flex-col md:flex-row justify-center gap-12 mt-16">
         <div className="text-center">
-          <img src={Retard} alt="Malek Rizk" className="w-[320px] h-[213px] rounded-t-lg" />
+          <img
+            src={Retard}
+            alt="Malek Rizk"
+            className="w-[320px] h-[213px] rounded-t-lg"
+          />
           <p className="bg-slate-800 py-2 font-semibold">Malek Rizk</p>
           <p className="bg-slate-700 py-2 rounded-b-md">Full-Stack Developer</p>
         </div>
 
         <div className="text-center">
-          <img src={Retard2} alt="Hasan Hammoud" className="w-[320px] h-[213px] rounded-t-lg" />
+          <img
+            src={Retard2}
+            alt="Hasan Hammoud"
+            className="w-[320px] h-[213px] rounded-t-lg"
+          />
           <p className="bg-slate-800 py-2 font-semibold">Hasan Hammoud</p>
           <p className="bg-slate-700 py-2 rounded-b-md">Full-Stack Developer</p>
         </div>

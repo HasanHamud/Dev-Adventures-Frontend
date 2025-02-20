@@ -13,7 +13,8 @@ export const Button = ({
     "rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2";
   const variantStyles = {
     default: "bg-blue-500 text-white hover:bg-blue-600",
-    outline: "bg-transparent border border-gray-700 text-white hover:bg-gray-700",
+    outline:
+      "bg-transparent border border-gray-700 text-white hover:bg-gray-700",
     ghost: "bg-transparent hover:bg-gray-700",
   };
   const sizeStyles = {

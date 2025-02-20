@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import CartItem from "../../Components/CartComponents/CartItem";
@@ -9,7 +10,7 @@ const CartPage = () => {
   const [cartData, setCartData] = useState({
     courses: [],
     plans: [],
-    totalPrice: 0
+    totalPrice: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -29,28 +30,45 @@ const CartPage = () => {
         },
       });
 
+      console.log("Cart API Response:", response.data);
+
+      // Map courses ensuring a price is provided (defaulting to 0)
       const coursesData = Array.isArray(response.data.courses)
-        ? response.data.courses
-        : [];
-      const plansData = Array.isArray(response.data.plans)
-        ? response.data.plans.map(p => ({
-            ...p.plan,
-            appliedPrice: p.appliedPrice,
-            dateAdded: p.dateAdded,
-            includedCourses: p.plan.plansCourses?.map(pc => pc.course) || []
+        ? response.data.courses.map((c) => ({
+            ...c,
+            price: c.price || 0,
           }))
         : [];
+
+      // Map plans from the API response
+      const plansData = Array.isArray(response.data.plans)
+        ? response.data.plans.map((p) => ({
+            ...p.plan,
+            appliedPrice: p.appliedPrice || 0,
+            dateAdded: p.dateAdded,
+            includedCourses: p.plan.plansCourses?.map((pc) => pc.course) || [],
+          }))
+        : [];
+
+      // Calculate total prices from courses and plans individually
+      const totalCoursesPrice = coursesData.reduce(
+        (sum, course) => sum + course.price,
+        0
+      );
+      const totalPlansPrice = plansData.reduce(
+        (sum, plan) => sum + plan.appliedPrice,
+        0
+      );
 
       setCartData({
         courses: coursesData,
         plans: plansData,
-        totalPrice: response.data.totalPrice
+        totalPrice: totalCoursesPrice + totalPlansPrice,
       });
+      setLoading(false);
     } catch (err) {
       console.error("Error fetching cart items:", err);
-      setCartData({ courses: [], plans: [], totalPrice: 0 });
-      setError("Failed to load cart items.");
-    } finally {
+      setError("Failed to fetch cart items.");
       setLoading(false);
     }
   }, []);
@@ -62,18 +80,17 @@ const CartPage = () => {
   const handleRemoveCourse = useCallback(async (id) => {
     try {
       const token = localStorage.getItem("authToken");
-      
       await axios.delete(`http://localhost:5101/api/Cart/Course/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setCartData(prev => ({
+
+      setCartData((prev) => ({
         ...prev,
-        courses: prev.courses.filter(course => course.id !== id)
+        courses: prev.courses.filter((course) => course.id !== id),
       }));
-    }
-     catch (err) {
+    } catch (err) {
       console.error("Error removing course:", err);
       setError("Failed to remove course.");
     }
@@ -87,9 +104,9 @@ const CartPage = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      setCartData(prev => ({
+      setCartData((prev) => ({
         ...prev,
-        plans: prev.plans.filter(plan => plan.id !== id)
+        plans: prev.plans.filter((plan) => plan.id !== id),
       }));
     } catch (err) {
       console.error("Error removing plan:", err);
@@ -97,19 +114,40 @@ const CartPage = () => {
     }
   }, []);
 
-  const handleCouponApplied = useCallback((response) => {
-    if (response === null) {
-      // Checkout was successful, clear the cart
-      setCartData({ courses: [], plans: [], totalPrice: 0 });
-    } else {
-      fetchCartItems(); // Refresh cart data to get updated prices
-    }
-  }, [fetchCartItems]);
+  const handleCouponApplied = useCallback(
+    (response) => {
+      if (response === null) {
+        setCartData({ courses: [], plans: [], totalPrice: 0 });
+      } else {
+        setCartData((prev) => {
+          const updatedCourses = prev.courses.map((course) => ({
+            ...course,
+            price: 0,
+          }));
+
+          const totalCoursesPrice = 0;
+          const totalPlansPrice = prev.plans.reduce(
+            (sum, plan) => sum + plan.price,
+            0
+          );
+
+          return {
+            courses: updatedCourses,
+            plans: prev.plans,
+            totalPrice: totalCoursesPrice + totalPlansPrice,
+          };
+        });
+      }
+    },
+    [fetchCartItems]
+  );
 
   const calculateTotalCourses = () => {
     const individualCourses = cartData.courses.length;
-    const coursesInPlans = cartData.plans.reduce((total, plan) => 
-      total + (plan.includedCourses?.length || 0), 0);
+    const coursesInPlans = cartData.plans.reduce(
+      (total, plan) => total + (plan.includedCourses?.length || 0),
+      0
+    );
     return individualCourses + coursesInPlans;
   };
 
@@ -130,8 +168,8 @@ const CartPage = () => {
         ) : (
           <>
             <div className="text-lg mb-6">
-              {totalItems} Item{totalItems !== 1 ? 's' : ''} in Cart 
-              ({totalCourses} Total Course{totalCourses !== 1 ? 's' : ''})
+              {totalItems} Item{totalItems !== 1 ? "s" : ""} in Cart (
+              {totalCourses} Total Course{totalCourses !== 1 ? "s" : ""})
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="md:col-span-2 space-y-6">
@@ -152,7 +190,9 @@ const CartPage = () => {
               </div>
               <CheckoutSummary
                 total={cartData.totalPrice}
-                courseId={cartData.courses.length > 0 ? cartData.courses[0].id : null}
+                courseId={
+                  cartData.courses.length > 0 ? cartData.courses[0].id : null
+                }
                 onCouponApplied={handleCouponApplied}
               />
             </div>

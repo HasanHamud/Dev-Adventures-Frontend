@@ -7,9 +7,9 @@ export default function HomeCourse({ text, text2, imgUrl }) {
     <div className="flex flex-col bg-[#2a2a2a] rounded-xl w-80 h-72 shadow-md transition-all ease-in-out duration-100 hover:-translate-y-3">
       <div className="rounded-md">
         <img
-          src={imgUrl || placeholder}  // Use imgUrl if available, otherwise fallback to placeholder
-          alt={text || "Course Image"} // Add alt text for accessibility
-          className="w-80 h-36 rounded-2xl object-cover"  // object-cover ensures the image fills the area nicely
+          src={imgUrl || placeholder}
+          alt={text || "Course Image"}
+          className="w-80 h-36 rounded-2xl object-cover"
         />
       </div>
 

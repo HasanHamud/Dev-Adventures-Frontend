@@ -6,7 +6,7 @@ import { CoursesHeader } from "../../Components/CoursesComponents/CoursesHeader"
 import Navbar from "../../Components/Navigators/Navbar";
 import AddCourseModal from "../../Modals/CoursesModals/AddCourseModal";
 import UpdateCourseModal from "../../Modals/CoursesModals/EditCourseModal";
-
+import ChatWidget from "../../Components/ChatComponent/Chat";
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 export default function CoursesPage() {
@@ -97,6 +97,7 @@ export default function CoursesPage() {
         course={selectedCourse}
         onCourseUpdated={() => mutate()}
       />
+      <ChatWidget />
     </div>
   );
 }

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
@@ -14,7 +15,7 @@ function PlanPage() {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false); // State to store admin status
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const BASE_URL = "http://localhost:5101";
   const token = localStorage.getItem("authToken");
@@ -24,9 +25,10 @@ function PlanPage() {
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
-        const roles = decodedToken[
-          "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-        ];
+        const roles =
+          decodedToken[
+            "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+          ];
         const userIsAdmin = Array.isArray(roles)
           ? roles.includes("Admin")
           : roles === "Admin";
@@ -40,6 +42,7 @@ function PlanPage() {
   useEffect(() => {
     checkIfAdmin();
     fetchPlans();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   const fetchPlans = async () => {
@@ -65,7 +68,7 @@ function PlanPage() {
   };
 
   const handleEditSuccess = async (updatedPlan) => {
-    await fetchPlans(); // Refresh the plans list
+    await fetchPlans();
     setIsEditModalOpen(false);
     setSelectedPlan(null);
   };
@@ -93,7 +96,7 @@ function PlanPage() {
     <div className="min-h-screen bg-gray-900 pt-16">
       <Navbar />
       <PlanHeader />
-      <div className="container mx-auto px-4 py-8 ">
+      <div className="container mx-auto px-4 py-8">
         <div className="mb-6 text-end">
           {isAdmin && (
             <button
@@ -108,7 +111,11 @@ function PlanPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {Array.isArray(plans) &&
             plans.map((plan) => (
-              <PlanCard key={plan.id} plan={plan} onEdit={() => handleEditPlan(plan)} />
+              <PlanCard
+                key={plan.id}
+                plan={plan}
+                onEdit={() => handleEditPlan(plan)}
+              />
             ))}
         </div>
       </div>

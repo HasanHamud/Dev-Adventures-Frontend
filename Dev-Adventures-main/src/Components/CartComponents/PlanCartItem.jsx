@@ -1,4 +1,5 @@
-import { BookOpen } from 'lucide-react';
+/* eslint-disable react/prop-types */
+import { BookOpen } from "lucide-react";
 
 const PlanCartItem = ({ plan, onRemove }) => {
   if (!plan) {
@@ -6,15 +7,15 @@ const PlanCartItem = ({ plan, onRemove }) => {
   }
 
   const getLevelString = (level) => {
-    switch(level) {
+    switch (level) {
       case 0:
-        return 'Beginner';
+        return "Beginner";
       case 1:
-        return 'Intermediate';
+        return "Intermediate";
       case 2:
-        return 'Advanced';
+        return "Advanced";
       default:
-        return 'Beginner';
+        return "Beginner";
     }
   };
 
@@ -26,7 +27,7 @@ const PlanCartItem = ({ plan, onRemove }) => {
           <BookOpen className="w-12 h-12 text-blue-300" />
         </div>
       </div>
-      
+
       {/* Plan Details */}
       <div className="flex-grow">
         <div className="flex items-center gap-2">
@@ -37,16 +38,18 @@ const PlanCartItem = ({ plan, onRemove }) => {
             {getLevelString(plan.level)}
           </span>
         </div>
-        
+
         <p className="text-sm text-gray-400 mt-2">
           {plan.description || "No description available"}
         </p>
-        
+
         <div className="flex gap-2 text-sm text-gray-400 mt-2">
           {plan.discount > 0 && (
             <>
               <span>•</span>
-              <span className="text-green-500">{plan.discount}% discount applied</span>
+              <span className="text-green-500">
+                {plan.discount}% discount applied
+              </span>
             </>
           )}
         </div>
