@@ -1,8 +1,6 @@
-/* eslint-disable no-undef */
-/* eslint-disable no-unused-vars */
 import { useEffect, useState, useRef } from "react";
 import * as signalR from "@microsoft/signalr";
-import { MessageCircle, X, ArrowLeft } from "lucide-react";
+import { MessageCircle, X, ArrowLeft, ImageIcon } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 
 const ChatWidget = () => {
@@ -16,6 +14,14 @@ const ChatWidget = () => {
   const [userId, setUserId] = useState(null);
   const [hasNewMessages, setHasNewMessages] = useState(false);
   const messagesEndRef = useRef(null);
+
+  const constructImageUrl = (profileImage) => {
+    if (!profileImage) return null;
+    if (profileImage.startsWith("/")) {
+      return `http://localhost:5101${profileImage}`;
+    }
+    return `http://localhost:5101/images/profiles/${profileImage}`;
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -91,7 +97,13 @@ const ChatWidget = () => {
         });
 
         newConnection.on("AvailableUsers", (users) => {
-          if (mounted) setOnlineUsers(users || []);
+          if (mounted) {
+            const usersWithImages = users.map(user => ({
+              ...user,
+              profileImageUrl: constructImageUrl(user.profileImage)
+            }));
+            setOnlineUsers(usersWithImages || []);
+          }
         });
 
         newConnection.on("ChatHistory", (history, currentUserId) => {
@@ -171,6 +183,25 @@ const ChatWidget = () => {
     }
   };
 
+  const renderProfileImage = (user) => {
+    if (user.profileImageUrl) {
+      return (
+        <img
+          src={user.profileImageUrl}
+          alt={user.fullname}
+          className="w-10 h-10 rounded-full object-cover"
+        />
+      );
+    }
+    return (
+      <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center">
+        <div className="flex flex-col items-center justify-center">
+          <ImageIcon className="text-gray-400 h-6 w-6" strokeWidth={1} />
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="fixed bottom-4 right-4 z-50">
       {!isOpen ? (
@@ -221,17 +252,7 @@ const ChatWidget = () => {
                       onClick={() => selectUser(user)}
                       className="flex items-center space-x-3 p-2 hover:bg-gray-700 rounded cursor-pointer"
                     >
-                      <div className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center">
-                        {user.profileImage ? (
-                          <img
-                            src={user.profileImage}
-                            alt={user.fullname}
-                            className="w-10 h-10 rounded-full"
-                          />
-                        ) : (
-                          <span className="text-white">{user.fullname[0]}</span>
-                        )}
-                      </div>
+                      {renderProfileImage(user)}
                       <span className="text-gray-100 flex-1">
                         {user.fullname}
                       </span>

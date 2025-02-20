@@ -12,7 +12,7 @@ import Navbar from "../../Components/Navigators/Navbar";
 
 function MyCoursePage() {
   const [courses, setCourses] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isPageLoading, setIsPageLoading] = useState(true); // Loading state for the page
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
@@ -33,7 +33,7 @@ function MyCoursePage() {
 
         console.log("Fetched courses:", response.data);
 
-        // Updated to use courseId instead of id
+        // Filter out invalid courses (missing courseId)
         const validCourses = response.data.filter((course) => {
           if (!course.courseId) {
             console.error("Course missing ID:", course);
@@ -47,7 +47,7 @@ function MyCoursePage() {
         console.error("Error fetching courses:", error);
         setError(error.message);
       } finally {
-        setIsLoading(false);
+        setIsPageLoading(false); // Page loading is complete
       }
     };
 
@@ -71,7 +71,7 @@ function MyCoursePage() {
     });
   };
 
-  if (isLoading) {
+  if (isPageLoading) {
     return (
       <div className="min-h-screen bg-gray-800 flex items-center justify-center">
         <div className="text-white">Loading courses...</div>
@@ -110,7 +110,7 @@ function MyCoursePage() {
               courses.map((course) => (
                 <div
                   key={course.courseId}
-                  onClick={() => handleCourseClick(course)}
+                  onClick={() => !isPageLoading && handleCourseClick(course)} // Prevent clicks while page is loading
                   className="cursor-pointer"
                 >
                   <CourseCard course={course} />

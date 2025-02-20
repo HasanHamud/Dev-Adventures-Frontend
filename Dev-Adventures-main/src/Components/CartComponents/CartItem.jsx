@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+import { ImageIcon } from "lucide-react";
 
 const CartItem = ({ course, onRemove }) => {
   if (!course) {
@@ -10,12 +11,21 @@ const CartItem = ({ course, onRemove }) => {
   return (
     <div className="flex gap-4 py-4 border-b border-gray-700">
       {/* Course Image */}
-      <div className="w-24 h-24 bg-gray-700 flex-shrink-0">
-        <img
-          src={course.image || "/api/placeholder/96/96"}
-          alt={course.title || "Course Image"}
-          className="w-full h-full object-cover"
-        />
+      <div className="w-24 h-24 bg-gray-700 flex-shrink-0 relative overflow-hidden">
+        {course.imgURL ? (
+          <img
+            src={`http://localhost:5101${course.imgURL}`}
+            alt={course.title || "Course Image"}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gray-700 flex items-center justify-center">
+            <ImageIcon className="text-gray-500 h-8 w-8" strokeWidth={1} />
+            <span className="absolute bottom-1 left-1 text-gray-400 text-xs">
+              No Image
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Course Details */}
