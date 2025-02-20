@@ -20,7 +20,10 @@ export default function CoursesPage() {
     error,
     isLoading,
     mutate,
-  } = useSWR("http://localhost:5101/api/Courses", fetcher);
+  } = useSWR("http://localhost:5101/api/Courses", fetcher, {
+    revalidateOnFocus: false,
+    refreshInterval: 0,
+  });
 
   const handleEditClick = async (courseId) => {
     const response = await axios.get(
@@ -30,9 +33,15 @@ export default function CoursesPage() {
     setUpdateModalOpen(true);
   };
 
-  const handleCourseAdded = async () => {
+  const handleCourseAdded = async (newCourse) => {
     setIsAddingCourse(true);
     try {
+      // Immediately update the local data with the new course
+      await mutate(async (currentCourses) => {
+        return [...(currentCourses || []), newCourse];
+      }, false); // false means don't revalidate immediately
+
+      // Then revalidate with the server
       await mutate();
       setAddModalOpen(false);
     } catch (error) {
@@ -64,11 +73,11 @@ export default function CoursesPage() {
       <Navbar />
       <CoursesHeader
         onAddClick={() => setAddModalOpen(true)}
-        onEditClick={() => handleEditClick(courses[0].id)}
+        onEditClick={() => handleEditClick(courses[0]?.id)}
       />
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {courses.map((course) => (
+          {courses?.map((course) => (
             <CourseCard
               key={course.id}
               course={course}

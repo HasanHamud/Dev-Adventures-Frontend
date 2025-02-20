@@ -17,6 +17,7 @@ import ProfilePage from "./Pages/ProfilePage/ProfilePage";
 import RegisterPage from "./Pages/RegisterPage/RegisterPage";
 import QuizPage from "./Pages/QuizPage/QuizPage";
 import MyCoursePage from "./Pages/MyCoursesPage/MyCoursePage";
+import RoadmapPage from "./Pages/RoadmapPage/Roadmap";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
@@ -63,6 +64,8 @@ function App() {
               />
               <Route path="about" element={<About />} />
               <Route path="mycourses" element={<MyCoursePage />} />
+
+              <Route path="Roadmap" element={<RoadmapPage />} />
             </Routes>
           </BrowserRouter>
         </SnackbarProvider>

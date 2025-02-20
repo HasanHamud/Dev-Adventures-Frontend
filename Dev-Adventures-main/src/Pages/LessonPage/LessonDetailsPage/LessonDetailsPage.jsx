@@ -53,17 +53,23 @@ export default function LessonDetailsPage() {
     if (courseId) fetchAllLessons();
   }, [courseId, passedLessons]);
 
-  const handleNextVideo = () => {
-    const currentIndex = videos.findIndex((v) => v.id === currentVideo?.id);
-    if (currentIndex !== -1 && currentIndex < videos.length - 1) {
-      setCurrentVideo(videos[currentIndex + 1]);
+  const handleNextLesson = () => {
+    const currentLessonIndex = allLessons.findIndex((l) => l.id === lesson?.id);
+    if (currentLessonIndex !== -1 && currentLessonIndex < allLessons.length - 1) {
+      const nextLesson = allLessons[currentLessonIndex + 1];
+      navigate(`/courses/${courseId}/lessons/${nextLesson.id}`, {
+        state: { courseData, lessons: allLessons, lessonData: nextLesson },
+      });
     }
   };
-
-  const handlePreviousVideo = () => {
-    const currentIndex = videos.findIndex((v) => v.id === currentVideo?.id);
-    if (currentIndex > 0) {
-      setCurrentVideo(videos[currentIndex - 1]);
+  
+  const handlePreviousLesson = () => {
+    const currentLessonIndex = allLessons.findIndex((l) => l.id === lesson?.id);
+    if (currentLessonIndex > 0) {
+      const prevLesson = allLessons[currentLessonIndex - 1];
+      navigate(`/courses/${courseId}/lessons/${prevLesson.id}`, {
+        state: { courseData, lessons: allLessons, lessonData: prevLesson },
+      });
     }
   };
 
@@ -221,45 +227,39 @@ export default function LessonDetailsPage() {
       {/* Sidebar with video list and navigation buttons */}
       <div className="p-4 mt-2 flex flex-col justify-start">
         <div className="flex justify-end mb-6 space-x-4">
-          <button
-            onClick={handlePreviousVideo}
-            disabled={
-              !currentVideo ||
-              videos.findIndex((v) => v.id === currentVideo.id) === 0
-            }
-            className={`w-44 flex text-white border-blue-500 border-2 
-              hover:border-blue-400 hover:bg-blue-500/10 transition-all duration-200 py-3 rounded-md items-center group 
-              ${
-                !currentVideo ||
-                videos.findIndex((v) => v.id === currentVideo.id) === 0
-                  ? "opacity-50 cursor-not-allowed"
-                  : ""
-              }`}
-          >
-            <ArrowBigLeft className="px-2 text-blue-500 group-hover:-translate-x-1 transition-transform" />
-            <span className="text-lg">Previous Video</span>
-          </button>
+        <button
+  onClick={() => {
+    handlePreviousLesson();
+    window.location.reload(); // Refresh page after navigating
+  }}
+  disabled={!lesson || allLessons.findIndex((l) => l.id === lesson.id) === 0}
+  className={`flex items-center px-5 py-3 rounded-lg text-lg font-medium transition-all duration-200 
+    ${
+      !lesson || allLessons.findIndex((l) => l.id === lesson.id) === 0
+        ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+        : "bg-blue-600 hover:bg-blue-500 text-white shadow-md"
+    }`}
+>
+  <ArrowBigLeft className="w-6 h-6 mr-2" />
+  Previous Lesson
+</button>
 
-          <button
-            onClick={handleNextVideo}
-            disabled={
-              !currentVideo ||
-              videos.findIndex((v) => v.id === currentVideo.id) ===
-                videos.length - 1
-            }
-            className={`w-44 flex text-white border-blue-500 border-2 
-              hover:border-blue-400 hover:bg-blue-500/10 transition-all duration-200 py-3 rounded-md items-center group 
-              ${
-                !currentVideo ||
-                videos.findIndex((v) => v.id === currentVideo.id) ===
-                  videos.length - 1
-                  ? "opacity-50 cursor-not-allowed"
-                  : ""
-              }`}
-          >
-            <ArrowBigRight className="px-2 text-blue-500 group-hover:translate-x-1 transition-transform" />
-            <span className="text-lg">Next Video</span>
-          </button>
+<button
+  onClick={() => {
+    handleNextLesson();
+    window.location.reload(); // Refresh page after navigating
+  }}
+  disabled={!lesson || allLessons.findIndex((l) => l.id === lesson.id) === allLessons.length - 1}
+  className={`flex items-center px-5 py-3 rounded-lg text-lg font-medium transition-all duration-200 
+    ${
+      !lesson || allLessons.findIndex((l) => l.id === lesson.id) === allLessons.length - 1
+        ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+        : "bg-blue-600 hover:bg-blue-500 text-white shadow-md"
+    }`}
+>
+  Next Lesson
+  <ArrowBigRight className="w-6 h-6 ml-2" />
+</button>
         </div>
         <VideoSideBar
           videos={videos}

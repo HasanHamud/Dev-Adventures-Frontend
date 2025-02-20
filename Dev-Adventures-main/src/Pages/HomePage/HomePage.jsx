@@ -164,26 +164,26 @@ const HomePage = () => {
                 Our Roadmaps
               </h1>
             </div>
-            <div className="flex flex-row justify-center space-x-8 px-12">
-              <Level
-                title="Beginner (WIP)"
-                feature1="Coding Fundamentals"
-                feature2="Getting Familiar with an IDE"
-                feature3="Build your first functional Project"
-              />
-              <Level
-                title="Intermediate (WIP)"
-                feature1="Get familiar with OOP"
-                feature2="Learn what data structures are"
-                feature3="Algorithms and their purpose"
-              />
-              <Level
-                title="Advanced (WIP)"
-                feature1="Multiple Paths"
-                feature2="Detailed Instructions"
-                feature3="CV approved functional projects"
-              />
-            </div>
+           <div className="flex flex-row justify-center space-x-8 px-12">
+  <Level
+    title="Beginner (WIP)"
+    feature1="Programming Basics"
+    feature2="Functions & Methods"
+    feature3="Object-Oriented Programming"
+  />
+  <Level
+    title="Intermediate (WIP)"
+    feature1="Object-Oriented Programming"
+    feature2="Data Structures"
+    feature3="Basic Algorithms"
+  />
+  <Level
+    title="Advanced (WIP)"
+    feature1="Advanced Algorithms"
+    feature2="System Design"
+    feature3="Specialized Paths"
+  />
+</div>
           </div>
         </div>
 
